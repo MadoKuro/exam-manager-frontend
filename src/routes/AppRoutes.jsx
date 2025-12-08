@@ -27,6 +27,13 @@ import RoomForm from '../pages/admin/rooms/RoomForm';
 
 // Teacher Pages
 import TeacherDashboard from '../pages/teacher/Dashboard';
+import TeacherProfile from '../pages/teacher/TeacherProfile';
+import TeacherRequestsList from '../pages/teacher/requests/TeacherRequestsList';
+import ExamRequestForm from '../pages/teacher/requests/ExamRequestForm';
+import TeacherSchedule from '../pages/teacher/TeacherSchedule';
+
+// Admin Pages
+import AdminRequests from '../pages/admin/AdminRequests';
 
 // Student Pages
 import StudentDashboard from '../pages/student/Dashboard';
@@ -63,6 +70,7 @@ export default function AppRoutes() {
                 <Route path="/admin/rooms" element={<RoomsList />} />
                 <Route path="/admin/rooms/add" element={<RoomForm />} />
                 <Route path="/admin/rooms/:id/edit" element={<RoomForm />} />
+                <Route path="/admin/requests" element={<AdminRequests />} />
             </Route>
 
             {/* Teacher Routes */}
@@ -72,6 +80,11 @@ export default function AppRoutes() {
                 </ProtectedRoute>
             }>
                 <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+                <Route path="/teacher/profile" element={<TeacherProfile />} />
+                <Route path="/teacher/requests" element={<TeacherRequestsList />} />
+                <Route path="/teacher/requests/new" element={<ExamRequestForm />} />
+                <Route path="/teacher/requests/edit/:id" element={<ExamRequestForm />} />
+                <Route path="/teacher/schedule" element={<TeacherSchedule />} />
             </Route>
 
             {/* Student Routes */}

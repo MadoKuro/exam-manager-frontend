@@ -14,14 +14,14 @@ import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Placeholder icon
-import ClassIcon from '@mui/icons-material/Class';     // Placeholder icon
-import EventIcon from '@mui/icons-material/Event';    // Placeholder icon
-import Tooltip from '@mui/material/Tooltip';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import EventIcon from '@mui/icons-material/Event';
+import PersonIcon from '@mui/icons-material/Person';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import { useTheme } from '@mui/material/styles';
 import { useColorMode } from '../context/ThemeContext';
 
-const drawerWidth = 260;
+const drawerWidth = 280;
 
 export default function TeacherLayout() {
     const { logout } = useAuth();
@@ -29,84 +29,110 @@ export default function TeacherLayout() {
     const { toggleColorMode } = useColorMode();
     const location = useLocation();
 
-    // Placeholder menu items for Teacher
     const menuItems = [
         { text: 'Dashboard', path: '/teacher/dashboard', icon: <DashboardIcon /> },
-        { text: 'My Classes', path: '/teacher/classes', icon: <ClassIcon /> },
+        { text: 'Profile', path: '/teacher/profile', icon: <PersonIcon /> },
+        { text: 'Exam Requests', path: '/teacher/requests', icon: <EventNoteIcon /> },
         { text: 'Schedule', path: '/teacher/schedule', icon: <EventIcon /> },
     ];
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            {/* Invisible/Transparent AppBar */}
+        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+            {/* Top Bar - Minimalist Green/White */}
             <AppBar
                 position="fixed"
                 sx={{
                     width: `calc(100% - ${drawerWidth}px)`,
                     ml: `${drawerWidth}px`,
-                    background: 'transparent',
+                    background: 'rgba(255, 255, 255, 0.5)',
+                    backdropFilter: 'blur(10px)',
                     boxShadow: 'none',
-                    backdropFilter: 'none',
-                    color: theme.palette.text.primary
+                    borderBottom: '1px solid rgba(16, 185, 129, 0.1)',
+                    color: '#064e3b' // Dark Emerald text
                 }}
             >
                 <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
+                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: '-0.5px' }}>
                         Teacher Dashboard
                     </Typography>
-                    <IconButton onClick={toggleColorMode} color="inherit">
+                    <IconButton onClick={toggleColorMode} sx={{ color: '#10b981' }}>
                         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
                     </IconButton>
                 </Toolbar>
             </AppBar>
 
-            {/* Sidebar (Drawer) */}
+            {/* Sidebar (Floating White Glass Panel) */}
             <Drawer
                 variant="permanent"
                 sx={{
                     width: drawerWidth,
                     flexShrink: 0,
                     [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
+                        width: drawerWidth - 24,
+                        margin: '12px',
+                        height: 'calc(100vh - 24px)',
+                        borderRadius: '24px',
                         boxSizing: 'border-box',
-                        borderRight: 'none',
-                        background: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.8)',
+                        background: 'rgba(255, 255, 255, 0.65)', // Milky Glass
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        color: '#374151',
                         display: 'flex',
                         flexDirection: 'column',
+                        overflow: 'hidden'
                     },
                 }}
             >
-                <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                <Toolbar sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 5 }}>
+                    <Box sx={{
+                        width: 64,
+                        height: 64,
+                        bgcolor: '#10b981', // Emerald
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 2,
+                        boxShadow: '0 8px 20px -5px rgba(16, 185, 129, 0.4)'
+                    }}>
+                        <Typography variant="h4" sx={{ color: 'white' }}>🎓</Typography>
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 800, color: '#065f46', letterSpacing: '-0.5px' }}>
                         UniManager
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+                        Teacher Portal
                     </Typography>
                 </Toolbar>
 
-                <Box sx={{ overflow: 'auto', mt: 2, px: 2, flexGrow: 1 }}>
+                <Box sx={{ overflow: 'auto', px: 3, flexGrow: 1, mt: 1 }}>
                     <List>
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
-                                <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                                <ListItem key={item.text} disablePadding sx={{ mb: 1.5 }}>
                                     <ListItemButton
                                         component={Link}
                                         to={item.path}
                                         sx={{
-                                            borderRadius: '12px',
-                                            background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent',
-                                            color: isActive ? 'white' : 'inherit',
+                                            borderRadius: '16px',
+                                            transition: 'all 0.3s ease',
+                                            background: isActive ? '#10b981' : 'transparent', // Solid Emerald when active
+                                            color: isActive ? 'white' : '#4b5563',
+                                            boxShadow: isActive ? '0 8px 20px -5px rgba(16, 185, 129, 0.4)' : 'none',
                                             '&:hover': {
-                                                background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(16, 185, 129, 0.08)',
+                                                background: isActive ? '#059669' : 'rgba(16, 185, 129, 0.08)',
+                                                transform: 'translateX(4px)'
                                             }
                                         }}
                                     >
-                                        <ListItemIcon sx={{ color: isActive ? 'white' : 'inherit', minWidth: 40 }}>
+                                        <ListItemIcon sx={{ color: isActive ? 'white' : '#10b981', minWidth: 44 }}>
                                             {item.icon}
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={item.text}
-                                            primaryTypographyProps={{ fontWeight: isActive ? 600 : 500 }}
+                                            primaryTypographyProps={{ fontWeight: isActive ? 700 : 500 }}
                                         />
                                     </ListItemButton>
                                 </ListItem>
@@ -115,22 +141,22 @@ export default function TeacherLayout() {
                     </List>
                 </Box>
 
-                {/* Bottom Section: User & Logout */}
-                <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={logout} sx={{ borderRadius: '12px', color: theme.palette.error.main }}>
-                            <ListItemIcon sx={{ minWidth: 40, color: theme.palette.error.main }}>
-                                <LogoutIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
-                        </ListItemButton>
-                    </ListItem>
+                {/* Bottom Section: Logout */}
+                <Box sx={{ p: 3 }}>
+                    <ListItemButton onClick={logout} sx={{ borderRadius: '16px', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2' } }}>
+                        <ListItemIcon sx={{ minWidth: 40, color: '#ef4444' }}>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
+                    </ListItemButton>
                 </Box>
             </Drawer>
 
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar /> {/* Spacer for AppBar */}
-                <Outlet />
+            <Box component="main" sx={{ flexGrow: 1, p: 4, overflow: 'auto' }}>
+                <Toolbar /> {/* Spacer */}
+                <Box>
+                    <Outlet />
+                </Box>
             </Box>
         </Box>
     );

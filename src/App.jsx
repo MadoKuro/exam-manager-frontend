@@ -7,32 +7,41 @@ import { AuthProvider } from './context/AuthContext';
 import { ColorModeProvider, useColorMode } from './context/ThemeContext';
 import AppRoutes from './routes/AppRoutes';
 import { getTheme } from './theme/theme';
+import { ExamRequestProvider } from './context/ExamRequestContext';
+import { NotificationProvider } from './context/NotificationContext';
+
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AppContent() {
   const { mode } = useColorMode();
-
   const theme = useMemo(() => getTheme(mode), [mode]);
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <GlobalStyles
-        styles={{
-          ':root': {
-            '--primary-main': theme.palette.primary.main,
-            '--primary-light': theme.palette.primary.light,
-            '--primary-dark': theme.palette.primary.dark,
-            '--bg-default': theme.palette.background.default,
-            '--bg-paper': theme.palette.background.paper,
-            '--text-primary': theme.palette.text.primary,
-          },
-        }}
-      />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
+      <ErrorBoundary>
+        <CssBaseline />
+        <GlobalStyles
+          styles={{
+            ':root': {
+              '--primary-main': theme.palette.primary.main,
+              '--primary-light': theme.palette.primary.light,
+              '--primary-dark': theme.palette.primary.dark,
+              '--bg-default': theme.palette.background.default,
+              '--bg-paper': theme.palette.background.paper,
+              '--text-primary': theme.palette.text.primary,
+            },
+          }}
+        />
+        <BrowserRouter>
+          <AuthProvider>
+            <ExamRequestProvider>
+              <NotificationProvider>
+                <AppRoutes />
+              </NotificationProvider>
+            </ExamRequestProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
