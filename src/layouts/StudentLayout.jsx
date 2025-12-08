@@ -13,10 +13,14 @@ import { useAuth } from '../context/AuthContext';
 import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import DownloadIcon from '@mui/icons-material/Download';
+import PersonIcon from '@mui/icons-material/Person';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Placeholder icon
-import SchoolIcon from '@mui/icons-material/School';     // Placeholder icon
-import AssignmentIcon from '@mui/icons-material/Assignment';    // Placeholder icon
 import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
 import { useColorMode } from '../context/ThemeContext';
@@ -29,11 +33,14 @@ export default function StudentLayout() {
     const { toggleColorMode } = useColorMode();
     const location = useLocation();
 
-    // Placeholder menu items for Student
+    // Updated menu items for Student
     const menuItems = [
         { text: 'Dashboard', path: '/student/dashboard', icon: <DashboardIcon /> },
-        { text: 'My Grades', path: '/student/grades', icon: <SchoolIcon /> },
-        { text: 'Assignments', path: '/student/assignments', icon: <AssignmentIcon /> },
+        { text: 'Exams Schedule', path: '/student/schedule', icon: <CalendarMonthIcon /> },
+        { text: 'Notifications', path: '/student/notifications', icon: <NotificationsIcon /> },
+        { text: 'Modules', path: '/student/modules', icon: <LibraryBooksIcon /> },
+        { text: 'Downloads', path: '/student/downloads', icon: <DownloadIcon /> },
+        { text: 'Profile', path: '/student/profile', icon: <PersonIcon /> },
     ];
 
     return (
@@ -47,13 +54,29 @@ export default function StudentLayout() {
                     background: 'transparent',
                     boxShadow: 'none',
                     backdropFilter: 'none',
-                    color: theme.palette.text.primary
+                    color: theme.palette.text.primary,
+                    zIndex: (theme) => theme.zIndex.drawer + 1
                 }}
             >
                 <Toolbar>
                     <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
                         Student Dashboard
                     </Typography>
+
+                    {/* Notification Bell */}
+                    <Tooltip title="Notifications">
+                        <IconButton
+                            color="inherit"
+                            component={Link}
+                            to="/student/notifications"
+                            sx={{ mr: 2 }}
+                        >
+                            <Badge badgeContent={3} color="error">
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+
                     <IconButton onClick={toggleColorMode} color="inherit">
                         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
                     </IconButton>

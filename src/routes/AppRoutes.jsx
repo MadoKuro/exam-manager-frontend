@@ -29,7 +29,13 @@ import RoomForm from '../pages/admin/rooms/RoomForm';
 import TeacherDashboard from '../pages/teacher/Dashboard';
 
 // Student Pages
+// Student Pages
 import StudentDashboard from '../pages/student/Dashboard';
+import StudentSchedule from '../pages/student/Schedule';
+import StudentNotifications from '../pages/student/Notifications';
+import StudentModules from '../pages/student/Modules';
+import StudentDownloads from '../pages/student/Downloads';
+import StudentProfile from '../pages/student/Profile';
 
 export default function AppRoutes() {
     const { user } = useAuth();
@@ -81,6 +87,11 @@ export default function AppRoutes() {
                 </ProtectedRoute>
             }>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/schedule" element={<StudentSchedule />} />
+                <Route path="/student/notifications" element={<StudentNotifications />} />
+                <Route path="/student/modules" element={<StudentModules />} />
+                <Route path="/student/downloads" element={<StudentDownloads />} />
+                <Route path="/student/profile" element={<StudentProfile />} />
             </Route>
 
             {/* Root/Redirect Logic */}
