@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+<<<<<<< HEAD
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
@@ -19,12 +20,47 @@ export const NotificationProvider = ({ children }) => {
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') return;
         setOpen(false);
+=======
+import { Snackbar, Alert } from '@mui/material';
+
+const NotificationContext = createContext();
+
+export const useNotification = () => {
+    const context = useContext(NotificationContext);
+    if (!context) {
+        throw new Error('useNotification must be used within NotificationProvider');
+    }
+    return context;
+};
+
+export const NotificationProvider = ({ children }) => {
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'info' // 'success' | 'error' | 'warning' | 'info'
+    });
+
+    const notify = (message, severity = 'info') => {
+        setNotification({
+            open: true,
+            message,
+            severity
+        });
+    };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setNotification(prev => ({ ...prev, open: false }));
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
     };
 
     return (
         <NotificationContext.Provider value={{ notify }}>
             {children}
             <Snackbar
+<<<<<<< HEAD
                 open={open}
                 autoHideDuration={4000}
                 onClose={handleClose}
@@ -59,10 +95,31 @@ export const NotificationProvider = ({ children }) => {
                     }}
                 >
                     {message}
+=======
+                open={notification.open}
+                autoHideDuration={4000}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={notification.severity}
+                    variant="filled"
+                    sx={{
+                        width: '100%',
+                        borderRadius: 2,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    }}
+                >
+                    {notification.message}
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
                 </Alert>
             </Snackbar>
         </NotificationContext.Provider>
     );
 };
+<<<<<<< HEAD
 
 export const useNotification = () => useContext(NotificationContext);
+=======
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6

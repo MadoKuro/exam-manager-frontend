@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -20,13 +21,26 @@ import { useTheme } from '@mui/material/styles';
 import { useColorMode } from '../context/ThemeContext';
 
 const drawerWidth = 280;
+=======
+import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LayersIcon from '@mui/icons-material/Layers';
+import GroupIcon from '@mui/icons-material/Group';
+import PeopleIcon from '@mui/icons-material/People';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import { BaseLayout, AppBarControls } from '../components/layout';
+import { ANIMATIONS, COLORS } from '../theme/themeConstants';
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
 
 export default function AdminLayout() {
-    const { logout } = useAuth();
     const theme = useTheme();
-    const { toggleColorMode } = useColorMode();
     const location = useLocation();
 
+<<<<<<< HEAD
     const menuItems = [
         { text: 'Exam Requests', path: '/admin/requests', icon: <EventNoteIcon /> }, // New Link
         /* { text: 'Years', path: '/admin/years', icon: <DashboardIcon /> }, */
@@ -110,10 +124,79 @@ export default function AdminLayout() {
                             const isActive = location.pathname === item.path;
                             return (
                                 <ListItem key={item.text} disablePadding sx={{ mb: 1.5 }}>
+=======
+    const menuSections = [
+        {
+            label: 'OVERVIEW',
+            items: [
+                { text: 'Pending Requests', path: '/admin/requests', icon: <EventNoteIcon /> },
+            ],
+        },
+        {
+            label: 'ACADEMIC STRUCTURE',
+            items: [
+                { text: 'Years', path: '/admin/years', icon: <CalendarMonthIcon /> },
+                { text: 'Semesters', path: '/admin/semesters', icon: <LayersIcon /> },
+                { text: 'Levels', path: '/admin/levels', icon: <LayersIcon /> },
+                { text: 'Groups', path: '/admin/groups', icon: <GroupIcon /> },
+            ],
+        },
+        {
+            label: 'PEOPLE MANAGEMENT',
+            items: [
+                { text: 'Teachers', path: '/admin/teachers', icon: <PeopleIcon /> },
+                { text: 'Students', path: '/admin/students', icon: <PeopleIcon /> },
+            ],
+        },
+        {
+            label: 'RESOURCES',
+            items: [
+                { text: 'Modules', path: '/admin/modules', icon: <MenuBookIcon /> },
+                { text: 'Rooms', path: '/admin/rooms', icon: <MeetingRoomIcon /> },
+            ],
+        },
+    ];
+
+    // Admin AppBar controls with notifications
+    const adminAppBarControls = (
+        <AppBarControls
+            user={{ name: 'Admin' }}
+            notificationPath="/admin/requests"
+            notificationCount={3}
+            defaultInitial="A"
+        />
+    );
+
+    // Custom grouped menu sections for admin
+    const adminMenuSections = (
+        <>
+            {menuSections.map((section) => (
+                <Box key={section.label} sx={{ mb: 2.5 }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            opacity: 0.65,
+                            fontWeight: 700,
+                            fontSize: '0.65rem',
+                            letterSpacing: '0.7px',
+                            mb: 1,
+                            ml: 1,
+                            color: theme.palette.text.secondary,
+                        }}
+                    >
+                        {section.label}
+                    </Typography>
+                    <List disablePadding>
+                        {section.items.map((item) => {
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <ListItem key={item.text} disablePadding sx={{ mb: 0.75 }}>
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
                                     <ListItemButton
                                         component={Link}
                                         to={item.path}
                                         sx={{
+<<<<<<< HEAD
                                             borderRadius: '16px',
                                             transition: 'all 0.3s ease',
                                             background: isActive ? '#059669' : 'transparent', // Darker Green for Admin Active
@@ -126,11 +209,44 @@ export default function AdminLayout() {
                                         }}
                                     >
                                         <ListItemIcon sx={{ color: isActive ? 'white' : '#059669', minWidth: 44 }}>
+=======
+                                            borderRadius: '10px',
+                                            transition: `all ${ANIMATIONS.duration.normal} ${ANIMATIONS.easing.smooth}`,
+                                            background: isActive
+                                                ? `linear-gradient(135deg, ${COLORS.primaryMain} 0%, ${COLORS.secondaryMain} 100%)`
+                                                : 'transparent',
+                                            color: isActive ? 'white' : theme.palette.text.primary,
+                                            boxShadow: isActive
+                                                ? '0 8px 20px -5px rgba(16,185,129,0.35)'
+                                                : 'none',
+                                            '&:hover': {
+                                                background: isActive
+                                                    ? `linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.secondaryDark} 100%)`
+                                                    : `rgba(16,185,129,0.08)`,
+                                                transform: ANIMATIONS.hover.translateX,
+                                            },
+                                        }}
+                                    >
+                                        <ListItemIcon
+                                            sx={{
+                                                color: isActive ? 'white' : COLORS.primaryMain,
+                                                minWidth: 36,
+                                            }}
+                                        >
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
                                             {item.icon}
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={item.text}
+<<<<<<< HEAD
                                             primaryTypographyProps={{ fontWeight: isActive ? 700 : 500 }}
+=======
+                                            primaryTypographyProps={{
+                                                fontWeight: isActive ? 600 : 500,
+                                                fontSize: '0.875rem',
+                                                color: isActive ? 'white' : 'inherit',
+                                            }}
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
                                         />
                                     </ListItemButton>
                                 </ListItem>
@@ -138,7 +254,11 @@ export default function AdminLayout() {
                         })}
                     </List>
                 </Box>
+            ))}
+        </>
+    );
 
+<<<<<<< HEAD
                 <Box sx={{ p: 3 }}>
                     <ListItemButton onClick={logout} sx={{ borderRadius: '16px', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2' } }}>
                         <ListItemIcon sx={{ minWidth: 40, color: '#ef4444' }}>
@@ -156,5 +276,13 @@ export default function AdminLayout() {
                 </Box>
             </Box>
         </Box>
+=======
+    return (
+        <BaseLayout
+            role="Admin"
+            menuSections={adminMenuSections}
+            appBarControls={adminAppBarControls}
+        />
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
     );
 }

@@ -1,15 +1,9 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PersonIcon from '@mui/icons-material/Person';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import EventIcon from '@mui/icons-material/Event';
 import { useAuth } from '../context/AuthContext';
+<<<<<<< HEAD
 import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -22,12 +16,12 @@ import { useTheme } from '@mui/material/styles';
 import { useColorMode } from '../context/ThemeContext';
 
 const drawerWidth = 280;
+=======
+import { BaseLayout, AppBarControls } from '../components/layout';
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
 
 export default function TeacherLayout() {
-    const { logout } = useAuth();
-    const theme = useTheme();
-    const { toggleColorMode } = useColorMode();
-    const location = useLocation();
+    const { user } = useAuth();
 
     const menuItems = [
         { text: 'Dashboard', path: '/teacher/dashboard', icon: <DashboardIcon /> },
@@ -37,6 +31,7 @@ export default function TeacherLayout() {
     ];
 
     return (
+<<<<<<< HEAD
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
             {/* Top Bar - Minimalist Green/White */}
             <AppBar
@@ -159,5 +154,19 @@ export default function TeacherLayout() {
                 </Box>
             </Box>
         </Box>
+=======
+        <BaseLayout
+            role="Teacher"
+            menuItems={menuItems}
+            appBarControls={
+                <AppBarControls
+                    user={user}
+                    notificationPath="/teacher/requests"
+                    notificationCount={2}
+                    defaultInitial="T"
+                />
+            }
+        />
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
     );
 }

@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
+import { Card, CardContent, Button, TextField, Typography, Box, Stack, IconButton, Tooltip } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import { useColorMode } from '../../context/ThemeContext';
+import GradientText from '../../components/GradientText';
+import { GRADIENTS, SHADOWS, COLORS } from '../../theme/themeConstants';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,6 +17,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const theme = useTheme();
+  const { toggleColorMode } = useColorMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,27 +36,41 @@ export default function Login() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      // Background is handled by CssBaseline in theme.js
+      position: 'relative',
     }}>
+      {/* Theme Toggle */}
+      <Tooltip title={theme.palette.mode === 'dark' ? 'Light mode' : 'Dark mode'} arrow>
+        <IconButton
+          onClick={toggleColorMode}
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            color: COLORS.primaryMain,
+            '&:hover': { bgcolor: `${COLORS.primaryMain}15` },
+          }}
+        >
+          {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+        </IconButton>
+      </Tooltip>
       <Card sx={{
         minWidth: 480,
-        borderRadius: 1.5,
+        borderRadius: 2,
         boxShadow: theme.palette.mode === 'light'
-          ? '0 20px 40px -10px rgba(0,0,0,0.1)'
-          : '0 20px 40px -10px rgba(0,0,0,0.5)',
-        background: theme.palette.mode === 'light'
-          ? 'rgba(255, 255, 255, 0.8)'
-          : 'rgba(30, 41, 59, 0.8)',
-        backdropFilter: 'blur(24px)',
-        border: `1px solid ${theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.05)'}`
+          ? '0 10px 40px -10px rgba(0,0,0,0.08)'
+          : '0 10px 40px -10px rgba(0,0,0,0.4)',
+        // Solid background, no glassmorphism
+        background: theme.palette.background.paper,
+        // Subtle border
+        border: `1px solid ${theme.palette.divider}`
       }}>
         <CardContent sx={{ p: 6 }}>
           <Stack alignItems="center" spacing={2} sx={{ mb: 6 }}>
             <Box sx={{
               p: 2,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)',
+              borderRadius: '24px',
+              background: GRADIENTS.brand,
+              boxShadow: SHADOWS.glow.icon,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -64,11 +78,22 @@ export default function Login() {
               <SchoolIcon sx={{ fontSize: 32, color: 'white' }} />
             </Box>
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" component="h1" fontWeight="800" sx={{ mb: 1, letterSpacing: '-0.02em' }}>
-                Welcome Back
+              <Typography variant="subtitle2" sx={{
+                mb: 1,
+                display: 'inline-block',
+                px: 1.5,
+                py: 0.5,
+                borderRadius: '20px',
+                background: 'rgba(139, 92, 246, 0.1)',
+                color: theme.palette.secondary.main
+              }}>
+                University Manager Portal
               </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Manage your university exams efficiently
+              <GradientText variant="h3" component="h1" sx={{ mb: 1 }}>
+                Welcome Back
+              </GradientText>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 300, mx: 'auto' }}>
+                Securely access your university management dashboard.
               </Typography>
             </Box>
           </Stack>
@@ -84,7 +109,7 @@ export default function Login() {
                 variant="outlined"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
+                    borderRadius: 2,
                   }
                 }}
               />
@@ -97,7 +122,7 @@ export default function Login() {
                 variant="outlined"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
+                    borderRadius: 2,
                   }
                 }}
               />
@@ -114,7 +139,8 @@ export default function Login() {
                 sx={{
                   py: 1.5,
                   fontSize: '1rem',
-                  mt: 1
+                  mt: 1,
+                  borderRadius: 2,
                 }}
               >
                 Sign In

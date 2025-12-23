@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 
 // Layouts
-import PublicLayout from '../layouts/PublicLayout';
 import AdminLayout from '../layouts/AdminLayout';
 import TeacherLayout from '../layouts/TeacherLayout';
 import StudentLayout from '../layouts/StudentLayout';
@@ -27,6 +26,7 @@ import RoomForm from '../pages/admin/rooms/RoomForm';
 
 // Teacher Pages
 import TeacherDashboard from '../pages/teacher/Dashboard';
+<<<<<<< HEAD
 import TeacherProfile from '../pages/teacher/TeacherProfile';
 import TeacherRequestsList from '../pages/teacher/requests/TeacherRequestsList';
 import ExamRequestForm from '../pages/teacher/requests/ExamRequestForm';
@@ -34,9 +34,22 @@ import TeacherSchedule from '../pages/teacher/TeacherSchedule';
 
 // Admin Pages
 import AdminRequests from '../pages/admin/AdminRequests';
+=======
+import TeacherProfile from '../pages/teacher/Profile';
+import TeacherSchedule from '../pages/teacher/Schedule';
+import TeacherRequests from '../pages/teacher/Requests';
+
+// Admin Additional Pages
+import AdminRequests from '../pages/admin/Requests';
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
 
 // Student Pages
 import StudentDashboard from '../pages/student/Dashboard';
+import StudentSchedule from '../pages/student/Schedule';
+import StudentNotifications from '../pages/student/Notifications';
+import StudentModules from '../pages/student/Modules';
+import StudentDownloads from '../pages/student/Downloads';
+import StudentProfile from '../pages/student/Profile';
 
 export default function AppRoutes() {
     const { user } = useAuth();
@@ -44,9 +57,7 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route element={<PublicLayout />}>
-                <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-            </Route>
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
 
             {/* Admin Routes */}
             <Route element={
@@ -54,6 +65,7 @@ export default function AppRoutes() {
                     <AdminLayout />
                 </ProtectedRoute>
             }>
+                <Route path="/admin/requests" element={<AdminRequests />} />
                 <Route path="/admin/years" element={<YearsList />} />
                 <Route path="/admin/semesters" element={<SemestersList />} />
                 <Route path="/admin/levels" element={<LevelsList />} />
@@ -81,10 +93,15 @@ export default function AppRoutes() {
             }>
                 <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
                 <Route path="/teacher/profile" element={<TeacherProfile />} />
+<<<<<<< HEAD
                 <Route path="/teacher/requests" element={<TeacherRequestsList />} />
                 <Route path="/teacher/requests/new" element={<ExamRequestForm />} />
                 <Route path="/teacher/requests/edit/:id" element={<ExamRequestForm />} />
                 <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+=======
+                <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+                <Route path="/teacher/requests" element={<TeacherRequests />} />
+>>>>>>> a407daef8171f1044c4a5bd77ebda5e39d0a29b6
             </Route>
 
             {/* Student Routes */}
@@ -94,6 +111,11 @@ export default function AppRoutes() {
                 </ProtectedRoute>
             }>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/schedule" element={<StudentSchedule />} />
+                <Route path="/student/notifications" element={<StudentNotifications />} />
+                <Route path="/student/modules" element={<StudentModules />} />
+                <Route path="/student/downloads" element={<StudentDownloads />} />
+                <Route path="/student/profile" element={<StudentProfile />} />
             </Route>
 
             {/* Root/Redirect Logic */}

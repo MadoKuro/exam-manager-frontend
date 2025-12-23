@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // { name, role: 'admin' | 'teacher' | 'student' }
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
         // Simulate checking auth state (e.g., from localStorage)
