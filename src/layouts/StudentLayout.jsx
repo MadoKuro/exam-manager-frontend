@@ -1,137 +1,36 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PersonIcon from '@mui/icons-material/Person';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '../context/AuthContext';
-import IconButton from '@mui/material/IconButton';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Placeholder icon
-import SchoolIcon from '@mui/icons-material/School';     // Placeholder icon
-import AssignmentIcon from '@mui/icons-material/Assignment';    // Placeholder icon
-import Tooltip from '@mui/material/Tooltip';
-import { useTheme } from '@mui/material/styles';
-import { useColorMode } from '../context/ThemeContext';
-
-const drawerWidth = 260;
+import { BaseLayout, AppBarControls } from '../components/layout';
 
 export default function StudentLayout() {
-    const { logout } = useAuth();
-    const theme = useTheme();
-    const { toggleColorMode } = useColorMode();
-    const location = useLocation();
+    const { user } = useAuth();
 
-    // Placeholder menu items for Student
     const menuItems = [
         { text: 'Dashboard', path: '/student/dashboard', icon: <DashboardIcon /> },
-        { text: 'My Grades', path: '/student/grades', icon: <SchoolIcon /> },
-        { text: 'Assignments', path: '/student/assignments', icon: <AssignmentIcon /> },
+        { text: 'Exams Schedule', path: '/student/schedule', icon: <CalendarMonthIcon /> },
+        { text: 'Notifications', path: '/student/notifications', icon: <NotificationsIcon /> },
+        { text: 'Modules', path: '/student/modules', icon: <LibraryBooksIcon /> },
+        { text: 'Downloads', path: '/student/downloads', icon: <DownloadIcon /> },
+        { text: 'Profile', path: '/student/profile', icon: <PersonIcon /> },
     ];
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            {/* Invisible/Transparent AppBar */}
-            <AppBar
-                position="fixed"
-                sx={{
-                    width: `calc(100% - ${drawerWidth}px)`,
-                    ml: `${drawerWidth}px`,
-                    background: 'transparent',
-                    boxShadow: 'none',
-                    backdropFilter: 'none',
-                    color: theme.palette.text.primary
-                }}
-            >
-                <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-                        Student Dashboard
-                    </Typography>
-                    <IconButton onClick={toggleColorMode} color="inherit">
-                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
-
-            {/* Sidebar (Drawer) */}
-            <Drawer
-                variant="permanent"
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                        borderRight: 'none',
-                        background: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                        backdropFilter: 'blur(16px)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                    },
-                }}
-            >
-                <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        UniManager
-                    </Typography>
-                </Toolbar>
-
-                <Box sx={{ overflow: 'auto', mt: 2, px: 2, flexGrow: 1 }}>
-                    <List>
-                        {menuItems.map((item) => {
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
-                                    <ListItemButton
-                                        component={Link}
-                                        to={item.path}
-                                        sx={{
-                                            borderRadius: '12px',
-                                            background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent',
-                                            color: isActive ? 'white' : 'inherit',
-                                            '&:hover': {
-                                                background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(16, 185, 129, 0.08)',
-                                            }
-                                        }}
-                                    >
-                                        <ListItemIcon sx={{ color: isActive ? 'white' : 'inherit', minWidth: 40 }}>
-                                            {item.icon}
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={item.text}
-                                            primaryTypographyProps={{ fontWeight: isActive ? 600 : 500 }}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            );
-                        })}
-                    </List>
-                </Box>
-
-                {/* Bottom Section: User & Logout */}
-                <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={logout} sx={{ borderRadius: '12px', color: theme.palette.error.main }}>
-                            <ListItemIcon sx={{ minWidth: 40, color: theme.palette.error.main }}>
-                                <LogoutIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
-                        </ListItemButton>
-                    </ListItem>
-                </Box>
-            </Drawer>
-
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar /> {/* Spacer for AppBar */}
-                <Outlet />
-            </Box>
-        </Box>
+        <BaseLayout
+            role="Student"
+            menuItems={menuItems}
+            appBarControls={
+                <AppBarControls
+                    user={user}
+                    notificationPath="/student/notifications"
+                    notificationCount={3}
+                    defaultInitial="S"
+                />
+            }
+        />
     );
 }

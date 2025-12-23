@@ -1,11 +1,21 @@
 import { Navigate } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { user, loading } = useAuth();
 
     if (loading) {
-        return <div>Loading...</div>; // TODO: Replace with proper loader
+        return (
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh'
+            }}>
+                <CircularProgress color="primary" />
+            </Box>
+        );
     }
 
     if (!user) {
@@ -13,7 +23,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     }
 
     if (allowedRoles && !allowedRoles.includes(user.role)) {
-        return <Navigate to="/" replace />; // Or forbidden page
+        return <Navigate to="/" replace />;
     }
 
     return children;

@@ -5,6 +5,9 @@ import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { AuthProvider } from './context/AuthContext';
 import { ColorModeProvider, useColorMode } from './context/ThemeContext';
+import { ExamRequestProvider } from './context/ExamRequestContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { AdminDataProvider } from './context/AdminDataContext';
 import AppRoutes from './routes/AppRoutes';
 import { getTheme } from './theme/theme';
 
@@ -30,7 +33,13 @@ function AppContent() {
       />
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <AdminDataProvider>
+            <ExamRequestProvider>
+              <NotificationProvider>
+                <AppRoutes />
+              </NotificationProvider>
+            </ExamRequestProvider>
+          </AdminDataProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

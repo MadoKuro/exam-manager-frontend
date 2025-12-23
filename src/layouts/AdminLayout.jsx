@@ -1,114 +1,122 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { useAuth } from '../context/AuthContext';
-import IconButton from '@mui/material/IconButton';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Example icon
-import Tooltip from '@mui/material/Tooltip';
+import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-import { useColorMode } from '../context/ThemeContext';
-
-const drawerWidth = 260;
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LayersIcon from '@mui/icons-material/Layers';
+import GroupIcon from '@mui/icons-material/Group';
+import PeopleIcon from '@mui/icons-material/People';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import { BaseLayout, AppBarControls } from '../components/layout';
+import { ANIMATIONS, COLORS } from '../theme/themeConstants';
 
 export default function AdminLayout() {
-    const { logout } = useAuth();
     const theme = useTheme();
-    const { toggleColorMode } = useColorMode();
     const location = useLocation();
 
-    const menuItems = [
-        { text: 'Years', path: '/admin/years', icon: <DashboardIcon /> },
-        { text: 'Semesters', path: '/admin/semesters', icon: <DashboardIcon /> }, // You can replace icons later
-        { text: 'Levels', path: '/admin/levels', icon: <DashboardIcon /> },
-        { text: 'Groups', path: '/admin/groups', icon: <DashboardIcon /> },
-        { text: 'Teachers', path: '/admin/teachers', icon: <DashboardIcon /> },
-        { text: 'Students', path: '/admin/students', icon: <DashboardIcon /> },
-        { text: 'Modules', path: '/admin/modules', icon: <DashboardIcon /> },
-        { text: 'Rooms', path: '/admin/rooms', icon: <DashboardIcon /> },
+    const menuSections = [
+        {
+            label: 'OVERVIEW',
+            items: [
+                { text: 'Pending Requests', path: '/admin/requests', icon: <EventNoteIcon /> },
+            ],
+        },
+        {
+            label: 'ACADEMIC STRUCTURE',
+            items: [
+                { text: 'Years', path: '/admin/years', icon: <CalendarMonthIcon /> },
+                { text: 'Semesters', path: '/admin/semesters', icon: <LayersIcon /> },
+                { text: 'Levels', path: '/admin/levels', icon: <LayersIcon /> },
+                { text: 'Groups', path: '/admin/groups', icon: <GroupIcon /> },
+            ],
+        },
+        {
+            label: 'PEOPLE MANAGEMENT',
+            items: [
+                { text: 'Teachers', path: '/admin/teachers', icon: <PeopleIcon /> },
+                { text: 'Students', path: '/admin/students', icon: <PeopleIcon /> },
+            ],
+        },
+        {
+            label: 'RESOURCES',
+            items: [
+                { text: 'Modules', path: '/admin/modules', icon: <MenuBookIcon /> },
+                { text: 'Rooms', path: '/admin/rooms', icon: <MeetingRoomIcon /> },
+            ],
+        },
     ];
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            {/* Invisible/Transparent AppBar */}
-            <AppBar
-                position="fixed"
-                sx={{
-                    width: `calc(100% - ${drawerWidth}px)`,
-                    ml: `${drawerWidth}px`,
-                    background: 'transparent',
-                    boxShadow: 'none',
-                    backdropFilter: 'none',
-                    color: theme.palette.text.primary
-                }}
-            >
-                <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-                        Admin Dashboard
-                    </Typography>
-                    <IconButton onClick={toggleColorMode} color="inherit">
-                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
+    // Admin AppBar controls with notifications
+    const adminAppBarControls = (
+        <AppBarControls
+            user={{ name: 'Admin' }}
+            notificationPath="/admin/requests"
+            notificationCount={3}
+            defaultInitial="A"
+        />
+    );
 
-            {/* Sidebar (Drawer) */}
-            <Drawer
-                variant="permanent"
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                        borderRight: 'none',
-                        background: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
-                        backdropFilter: 'blur(16px)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                    },
-                }}
-            >
-                <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        UniManager
+    // Custom grouped menu sections for admin
+    const adminMenuSections = (
+        <>
+            {menuSections.map((section) => (
+                <Box key={section.label} sx={{ mb: 2.5 }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            opacity: 0.65,
+                            fontWeight: 700,
+                            fontSize: '0.65rem',
+                            letterSpacing: '0.7px',
+                            mb: 1,
+                            ml: 1,
+                            color: theme.palette.text.secondary,
+                        }}
+                    >
+                        {section.label}
                     </Typography>
-                </Toolbar>
-
-                <Box sx={{ overflow: 'auto', mt: 2, px: 2, flexGrow: 1 }}>
-                    <List>
-                        {menuItems.map((item) => {
+                    <List disablePadding>
+                        {section.items.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
-                                <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                                <ListItem key={item.text} disablePadding sx={{ mb: 0.75 }}>
                                     <ListItemButton
                                         component={Link}
                                         to={item.path}
                                         sx={{
-                                            borderRadius: '12px',
-                                            background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent',
-                                            color: isActive ? 'white' : 'inherit',
+                                            borderRadius: '10px',
+                                            transition: `all ${ANIMATIONS.duration.normal} ${ANIMATIONS.easing.smooth}`,
+                                            background: isActive
+                                                ? `linear-gradient(135deg, ${COLORS.primaryMain} 0%, ${COLORS.secondaryMain} 100%)`
+                                                : 'transparent',
+                                            color: isActive ? 'white' : theme.palette.text.primary,
+                                            boxShadow: isActive
+                                                ? '0 8px 20px -5px rgba(16,185,129,0.35)'
+                                                : 'none',
                                             '&:hover': {
-                                                background: isActive ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(16, 185, 129, 0.08)',
-                                            }
+                                                background: isActive
+                                                    ? `linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.secondaryDark} 100%)`
+                                                    : `rgba(16,185,129,0.08)`,
+                                                transform: ANIMATIONS.hover.translateX,
+                                            },
                                         }}
                                     >
-                                        <ListItemIcon sx={{ color: isActive ? 'white' : 'inherit', minWidth: 40 }}>
+                                        <ListItemIcon
+                                            sx={{
+                                                color: isActive ? 'white' : COLORS.primaryMain,
+                                                minWidth: 36,
+                                            }}
+                                        >
                                             {item.icon}
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={item.text}
-                                            primaryTypographyProps={{ fontWeight: isActive ? 600 : 500 }}
+                                            primaryTypographyProps={{
+                                                fontWeight: isActive ? 600 : 500,
+                                                fontSize: '0.875rem',
+                                                color: isActive ? 'white' : 'inherit',
+                                            }}
                                         />
                                     </ListItemButton>
                                 </ListItem>
@@ -116,24 +124,15 @@ export default function AdminLayout() {
                         })}
                     </List>
                 </Box>
+            ))}
+        </>
+    );
 
-                {/* Bottom Section: User & Logout */}
-                <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={logout} sx={{ borderRadius: '12px', color: theme.palette.error.main }}>
-                            <ListItemIcon sx={{ minWidth: 40, color: theme.palette.error.main }}>
-                                <LogoutIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
-                        </ListItemButton>
-                    </ListItem>
-                </Box>
-            </Drawer>
-
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar /> {/* Spacer for AppBar */}
-                <Outlet />
-            </Box>
-        </Box>
+    return (
+        <BaseLayout
+            role="Admin"
+            menuSections={adminMenuSections}
+            appBarControls={adminAppBarControls}
+        />
     );
 }
