@@ -24,6 +24,12 @@ import ModuleForm from '../pages/admin/modules/ModuleForm';
 import RoomsList from '../pages/admin/rooms/RoomsList';
 import RoomForm from '../pages/admin/rooms/RoomForm';
 
+// Exams Pages
+import ExamsList from '../pages/admin/exams/ExamsList';
+import SurveillantsList from '../pages/admin/surveillants/SurveillantsList';
+import PlanningView from '../pages/admin/planning/PlanningView';
+import ConvocationsList from '../pages/admin/convocations/ConvocationsList';
+
 // Teacher Pages
 import TeacherDashboard from '../pages/teacher/Dashboard';
 import TeacherProfile from '../pages/teacher/Profile';
@@ -72,6 +78,11 @@ export default function AppRoutes() {
                 <Route path="/admin/rooms" element={<RoomsList />} />
                 <Route path="/admin/rooms/add" element={<RoomForm />} />
                 <Route path="/admin/rooms/:id/edit" element={<RoomForm />} />
+                {/* Exams Routes */}
+                <Route path="/admin/exams" element={<ExamsList />} />
+                <Route path="/admin/surveillants" element={<SurveillantsList />} />
+                <Route path="/admin/planning" element={<PlanningView />} />
+                <Route path="/admin/convocations" element={<ConvocationsList />} />
             </Route>
 
             {/* Teacher Routes */}
@@ -103,7 +114,7 @@ export default function AppRoutes() {
             {/* Root/Redirect Logic */}
             <Route path="/" element={
                 !user ? <Navigate to="/login" /> :
-                    user.role === 'admin' ? <Navigate to="/admin/years" /> :
+                    user.role === 'admin' ? <Navigate to="/admin/requests" /> :
                         user.role === 'teacher' ? <Navigate to="/teacher/dashboard" /> :
                             <Navigate to="/student/dashboard" />
             } />

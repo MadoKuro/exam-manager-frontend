@@ -4,3 +4,4 @@ export { default as SidebarHeader } from './SidebarHeader';
 export { default as NavigationMenu } from './NavigationMenu';
 export { default as LogoutButton } from './LogoutButton';
 export { default as AppBarControls } from './AppBarControls';
+export { default as PageNavbar } from './PageNavbar';

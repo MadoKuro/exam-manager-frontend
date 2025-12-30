@@ -16,13 +16,15 @@ const drawerWidth = LAYOUT.drawerWidth;
  * @param {ReactNode} appBarControls - Custom AppBar controls component
  * @param {ReactNode} sidebarContent - Optional custom sidebar content (before menu)
  * @param {Array} menuSections - Optional grouped menu sections for admin layout
+ * @param {ReactNode} pageNavbar - Optional page-level navigation bar
  */
 export default function BaseLayout({
     role,
     menuItems = [],
     menuSections,
     appBarControls,
-    sidebarContent
+    sidebarContent,
+    pageNavbar
 }) {
     const theme = useTheme();
 
@@ -111,6 +113,7 @@ export default function BaseLayout({
             {/* Main Content */}
             <Box component="main" sx={{ flexGrow: 1, p: 4, overflow: 'auto' }}>
                 <Toolbar /> {/* Spacer */}
+                {pageNavbar}
                 <Box>
                     <Outlet />
                 </Box>
