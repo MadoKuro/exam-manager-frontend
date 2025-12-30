@@ -3,19 +3,22 @@ import { useTheme } from '@mui/material/styles';
 import { COLORS } from '../../../theme/themeConstants';
 import ExamCard from './ExamCard';
 
-// Consistent calendar color scheme (matching CalendarGrid)
+// Mixed primary/secondary color scheme (matching CalendarGrid)
 const CALENDAR_COLORS = {
+    // Today highlight - secondary (purple)
     today: {
-        light: `${COLORS.primaryMain}12`,
-        dark: `${COLORS.primaryMain}18`
+        light: `${COLORS.secondaryMain}12`,
+        dark: `${COLORS.secondaryMain}18`
     },
+    // Regular header - primary (green)
     header: {
         light: `${COLORS.primaryMain}08`,
         dark: `${COLORS.primaryMain}12`
     },
+    // Today badge - secondary (purple)
     todayBadge: {
-        light: COLORS.primaryMain,
-        dark: COLORS.primaryMain
+        light: COLORS.secondaryMain,
+        dark: COLORS.secondaryMain
     }
 };
 
@@ -43,20 +46,20 @@ export default function CalendarDayColumn({
                 '&:last-child': { borderRight: 'none' }
             }}
         >
-            {/* Day header */}
+            {/* Day header - today uses secondary bg, regular uses primary */}
             <Box sx={{
                 p: 2,
                 textAlign: 'center',
                 bgcolor: isToday
                     ? (isDark ? CALENDAR_COLORS.today.dark : CALENDAR_COLORS.today.light)
                     : (isDark ? CALENDAR_COLORS.header.dark : CALENDAR_COLORS.header.light),
-                borderBottom: `1px solid ${theme.palette.divider}`,
-                transition: 'background-color 0.2s ease'
+                borderBottom: `1px solid ${theme.palette.divider}`
             }}>
+                {/* Day name - secondary for today, primary for regular */}
                 <Typography
                     variant="body2"
                     sx={{
-                        color: theme.palette.text.secondary,
+                        color: isToday ? COLORS.secondaryMain : COLORS.primaryMain,
                         fontSize: '0.75rem',
                         letterSpacing: '0.5px',
                         textTransform: 'uppercase',
@@ -66,6 +69,7 @@ export default function CalendarDayColumn({
                 >
                     {day.toLocaleDateString('en-US', { weekday: 'short' })}
                 </Typography>
+                {/* Date number - purple badge for today */}
                 <Typography
                     variant="h5"
                     sx={{
@@ -78,8 +82,7 @@ export default function CalendarDayColumn({
                         height: 40,
                         borderRadius: '50%',
                         bgcolor: isToday ? CALENDAR_COLORS.todayBadge[isDark ? 'dark' : 'light'] : 'transparent',
-                        boxShadow: isToday ? '0 2px 8px rgba(0,204,136,0.4)' : 'none',
-                        transition: 'all 0.2s ease'
+                        boxShadow: isToday ? `0 2px 8px ${COLORS.secondaryMain}60` : 'none'
                     }}
                 >
                     {day.getDate()}

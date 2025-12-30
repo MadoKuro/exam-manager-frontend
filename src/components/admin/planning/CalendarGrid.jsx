@@ -4,32 +4,27 @@ import { COLORS } from '../../../theme/themeConstants';
 import ExamCard from './ExamCard';
 import CalendarDayColumn from './CalendarDayColumn';
 
-// Consistent calendar color scheme
+// Mixed primary/secondary calendar color scheme
 const CALENDAR_COLORS = {
-    // Today cell highlight
+    // Today cell highlight - secondary (purple)
     today: {
-        light: `${COLORS.primaryMain}12`,
-        dark: `${COLORS.primaryMain}18`
+        light: `${COLORS.secondaryMain}12`,
+        dark: `${COLORS.secondaryMain}18`
     },
-    // Regular day cell
-    cell: {
-        light: 'transparent',
-        dark: 'transparent'
-    },
-    // Header row
+    // Header row - primary (green) tint
     header: {
         light: `${COLORS.primaryMain}08`,
         dark: `${COLORS.primaryMain}12`
     },
-    // Hover effect
+    // Hover effect - primary (green)
     hover: {
-        light: 'rgba(0,0,0,0.02)',
-        dark: 'rgba(255,255,255,0.03)'
+        light: `${COLORS.primaryMain}05`,
+        dark: `${COLORS.primaryMain}08`
     },
-    // Today date badge
+    // Today date badge - secondary (purple)
     todayBadge: {
-        light: COLORS.primaryMain,
-        dark: COLORS.primaryMain
+        light: COLORS.secondaryMain,
+        dark: COLORS.secondaryMain
     }
 };
 
@@ -57,7 +52,7 @@ export default function CalendarGrid({
                 gap: '1px',
                 bgcolor: theme.palette.divider,
             }}>
-                {/* Day Headers */}
+                {/* Day Headers - primary color */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <Box key={day} sx={{
                         p: 1.5,
@@ -66,7 +61,7 @@ export default function CalendarGrid({
                         fontSize: '0.75rem',
                         letterSpacing: '0.5px',
                         textTransform: 'uppercase',
-                        color: theme.palette.text.secondary,
+                        color: COLORS.primaryMain,
                         bgcolor: isDark ? CALENDAR_COLORS.header.dark : CALENDAR_COLORS.header.light,
                     }}>
                         {day}
@@ -93,13 +88,13 @@ export default function CalendarGrid({
                             bgcolor: isToday
                                 ? (isDark ? CALENDAR_COLORS.today.dark : CALENDAR_COLORS.today.light)
                                 : theme.palette.background.paper,
-                            transition: 'background-color 0.2s ease',
                             '&:hover': {
                                 bgcolor: isToday
                                     ? (isDark ? CALENDAR_COLORS.today.dark : CALENDAR_COLORS.today.light)
                                     : (isDark ? CALENDAR_COLORS.hover.dark : CALENDAR_COLORS.hover.light)
                             }
                         }}>
+                            {/* Today badge uses secondary (purple), regular days use primary (green) for number */}
                             <Typography
                                 variant="body2"
                                 sx={{
@@ -113,8 +108,7 @@ export default function CalendarGrid({
                                     height: 28,
                                     borderRadius: '50%',
                                     bgcolor: isToday ? CALENDAR_COLORS.todayBadge[isDark ? 'dark' : 'light'] : 'transparent',
-                                    boxShadow: isToday ? '0 2px 8px rgba(0,204,136,0.4)' : 'none',
-                                    transition: 'all 0.2s ease'
+                                    boxShadow: isToday ? `0 2px 8px ${COLORS.secondaryMain}60` : 'none'
                                 }}
                             >
                                 {day.getDate()}
@@ -131,6 +125,7 @@ export default function CalendarGrid({
                                         variant="compact"
                                     />
                                 ))}
+                                {/* Overflow text uses primary (green) */}
                                 {dayExams.length > 3 && (
                                     <Typography variant="caption" sx={{
                                         color: COLORS.primaryMain,

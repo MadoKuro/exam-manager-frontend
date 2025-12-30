@@ -166,7 +166,17 @@ export default function PlanningView() {
                     size="small"
                     sx={{
                         bgcolor: theme.palette.mode === 'light' ? 'white' : theme.palette.background.paper,
-                        borderRadius: 2
+                        borderRadius: 2,
+                        '& .MuiToggleButton-root': {
+                            color: theme.palette.text.secondary,
+                            '&.Mui-selected': {
+                                bgcolor: `${COLORS.secondaryMain}15`,
+                                color: COLORS.secondaryMain,
+                                '&:hover': {
+                                    bgcolor: `${COLORS.secondaryMain}25`
+                                }
+                            }
+                        }
                     }}
                 >
                     <ToggleButton value="calendar" sx={{ px: 2 }}>

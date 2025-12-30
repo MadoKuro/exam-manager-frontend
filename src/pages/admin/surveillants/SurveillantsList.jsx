@@ -148,7 +148,17 @@ export default function SurveillantsList() {
                     sx={{
                         bgcolor: theme.palette.mode === 'light' ? 'white' : theme.palette.background.paper,
                         borderRadius: 2,
-                        mr: 2
+                        mr: 2,
+                        '& .MuiToggleButton-root': {
+                            color: theme.palette.text.secondary,
+                            '&.Mui-selected': {
+                                bgcolor: `${COLORS.secondaryMain}15`,
+                                color: COLORS.secondaryMain,
+                                '&:hover': {
+                                    bgcolor: `${COLORS.secondaryMain}25`
+                                }
+                            }
+                        }
                     }}
                 >
                     <ToggleButton value="list" sx={{ px: 2 }}>
