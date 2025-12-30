@@ -2,6 +2,7 @@ import { Box, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
+import { COLORS } from '../../theme/themeConstants';
 
 /**
  * Shared logout button component
@@ -18,7 +19,7 @@ export default function LogoutButton() {
                     borderRadius: '16px',
                     color: theme.palette.error.main,
                     '&:hover': {
-                        bgcolor: theme.palette.mode === 'light' ? '#fef2f2' : 'rgba(239, 68, 68, 0.1)'
+                        bgcolor: theme.palette.mode === 'light' ? COLORS.errorLight : `${COLORS.errorMain}15`
                     }
                 }}
             >

@@ -26,9 +26,11 @@ import RoomForm from '../pages/admin/rooms/RoomForm';
 
 // Exams Pages
 import ExamsList from '../pages/admin/exams/ExamsList';
+import ExamForm from '../pages/admin/exams/ExamForm';
 import SurveillantsList from '../pages/admin/surveillants/SurveillantsList';
 import PlanningView from '../pages/admin/planning/PlanningView';
 import ConvocationsList from '../pages/admin/convocations/ConvocationsList';
+import ConvocationDetail from '../pages/admin/convocations/ConvocationDetail';
 
 // Teacher Pages
 import TeacherDashboard from '../pages/teacher/Dashboard';
@@ -80,9 +82,12 @@ export default function AppRoutes() {
                 <Route path="/admin/rooms/:id/edit" element={<RoomForm />} />
                 {/* Exams Routes */}
                 <Route path="/admin/exams" element={<ExamsList />} />
+                <Route path="/admin/exams/add" element={<ExamForm />} />
+                <Route path="/admin/exams/:id/edit" element={<ExamForm />} />
                 <Route path="/admin/surveillants" element={<SurveillantsList />} />
                 <Route path="/admin/planning" element={<PlanningView />} />
                 <Route path="/admin/convocations" element={<ConvocationsList />} />
+                <Route path="/admin/convocations/:id" element={<ConvocationDetail />} />
             </Route>
 
             {/* Teacher Routes */}
