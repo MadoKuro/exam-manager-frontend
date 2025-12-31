@@ -3,17 +3,27 @@ import { useTheme } from '@mui/material/styles';
 import EmailIcon from '@mui/icons-material/Email';
 import SchoolIcon from '@mui/icons-material/School';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminData } from '../../context/AdminDataContext';
 import { GLASSMORPHISM } from '../../theme/themeConstants';
-
-const myModules = [
-    { id: 'CS101', name: 'Intro to Computer Science', students: 120 },
-    { id: 'DB201', name: 'Database Systems', students: 85 },
-    { id: 'ALG102', name: 'Algorithms & Data Structures', students: 90 },
-];
 
 export default function TeacherProfile() {
     const { user } = useAuth();
+    const { teachers, modules, students } = useAdminData();
     const theme = useTheme();
+
+    // Find current teacher from context
+    const currentTeacher = teachers.find(t => t.id === user?.id);
+
+    // Filter modules assigned to this teacher
+    const myModules = modules
+        .filter(m => m.teacherId === user?.id)
+        .map(m => ({
+            id: m.code || `M${m.id}`,
+            name: m.name,
+            // Count students in groups that have this module (simplified)
+            students: students.filter(s => s.levelId).length || 0
+        }));
+
 
     return (
         <Box maxWidth="lg" sx={{ mx: 'auto' }}>
@@ -36,7 +46,7 @@ export default function TeacherProfile() {
                             {user?.name ? user.name[0] : 'T'}
                         </Avatar>
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            {user?.name || 'Teacher Name'}
+                            {currentTeacher?.name || user?.name || 'Teacher Name'}
                         </Typography>
                         <Typography variant="body1" color="text.secondary" gutterBottom>
                             Computer Science Department
@@ -46,7 +56,7 @@ export default function TeacherProfile() {
 
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, color: 'text.secondary' }}>
                             <EmailIcon fontSize="small" />
-                            <Typography variant="body2">teacher@university.edu</Typography>
+                            <Typography variant="body2">{currentTeacher?.email || user?.email || 'teacher@university.edu'}</Typography>
                         </Box>
                     </Paper>
                 </Grid>

@@ -8,6 +8,7 @@ import { ColorModeProvider, useColorMode } from './context/ThemeContext';
 import { ExamRequestProvider } from './context/ExamRequestContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AdminDataProvider } from './context/AdminDataContext';
+import { UserNotificationsProvider } from './context/UserNotificationsContext';
 import AppRoutes from './routes/AppRoutes';
 import { getTheme } from './theme/theme';
 
@@ -36,7 +37,9 @@ function AppContent() {
           <AdminDataProvider>
             <ExamRequestProvider>
               <NotificationProvider>
-                <AppRoutes />
+                <UserNotificationsProvider>
+                  <AppRoutes />
+                </UserNotificationsProvider>
               </NotificationProvider>
             </ExamRequestProvider>
           </AdminDataProvider>

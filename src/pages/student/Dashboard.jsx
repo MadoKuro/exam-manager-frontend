@@ -1,4 +1,5 @@
-import { Box, Typography, Grid, Card, CardContent, Button, List, ListItem, ListItemText, Chip, Divider, Grow } from '@mui/material';
+import { useMemo } from 'react';
+import { Box, Typography, Grid, CardContent, Button, List, ListItem, ListItemText, Chip, Divider, Grow } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import EventIcon from '@mui/icons-material/Event';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
@@ -8,45 +9,67 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Link } from 'react-router-dom';
-import { GLASSMORPHISM, ANIMATIONS, COLORS } from '../../theme/themeConstants';
+import { COLORS } from '../../theme/themeConstants';
+import { useAuth } from '../../context/AuthContext';
+import { useAdminData } from '../../context/AdminDataContext';
+import { useUserNotifications } from '../../context/UserNotificationsContext';
+import { GlassmorphicCard } from '../../components/admin';
 
 export default function StudentDashboard() {
     const theme = useTheme();
+    const { user } = useAuth();
+    const { exams, modules, teachers, rooms } = useAdminData();
+    const { getNotificationsForUser } = useUserNotifications();
 
-    // Mock Data
-    const nextExam = {
-        module: 'Algorithmics 2',
-        date: '12 Jan 2026',
-        time: '10:00 - 12:00',
-        room: 'Room 23',
-        teacher: 'Mr. X',
+    // Get notifications from context for this student (latest 3)
+    const notifications = getNotificationsForUser('student', user?.id).slice(0, 3);
+
+    // Get display name from user context
+    const displayName = user?.name?.split(' ')[0] || 'Student';
+
+    // Helpers for lookups
+    const getModuleName = (moduleId) => modules.find(m => m.id === moduleId)?.name || 'Unknown';
+    const getTeacherName = (moduleId) => {
+        const mod = modules.find(m => m.id === moduleId);
+        return teachers.find(t => t.id === mod?.teacherId)?.name || 'TBD';
     };
+    const getRoomName = (roomIds) => roomIds?.length ? rooms.find(r => r.id === roomIds[0])?.name : 'TBD';
 
-    const notifications = [
-        { id: 1, title: 'Room Change', message: 'Algo 2 exam moved to Room 23', date: '2 hrs ago', type: 'warning' },
-        { id: 2, title: 'New Exam Added', message: 'Database final exam scheduled', date: '1 day ago', type: 'info' },
-    ];
+    // Compute next upcoming exam from context
+    const nextExam = useMemo(() => {
+        const today = new Date();
+        const upcoming = exams
+            .filter(e => new Date(e.date) >= today)
+            .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
-    const modules = [
-        { name: 'Algorithmics 2', teacher: 'Mr. X' },
-        { name: 'Web Development', teacher: 'Mrs. Y' },
-        { name: 'Databases', teacher: 'Mr. Z' },
-        { name: 'Mathematics', teacher: 'Mrs. A' },
-    ];
+        if (!upcoming) return null;
 
-    const cardHoverStyle = {
-        transition: `transform ${ANIMATIONS.duration.slow} ${ANIMATIONS.easing.springy}, box-shadow ${ANIMATIONS.duration.slow}`,
-        '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 12px 24px -10px rgba(139, 92, 246, 0.15)'
-        }
-    };
+        const endTime = (() => {
+            const [h, m] = upcoming.startTime.split(':').map(Number);
+            const total = h * 60 + m + upcoming.duration;
+            return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+        })();
+
+        return {
+            module: getModuleName(upcoming.moduleId),
+            date: new Date(upcoming.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+            time: `${upcoming.startTime} - ${endTime}`,
+            room: getRoomName(upcoming.roomIds),
+            teacher: getTeacherName(upcoming.moduleId),
+        };
+    }, [exams, modules, teachers, rooms]);
+
+    // Module list for display
+    const moduleList = useMemo(() => modules.slice(0, 4).map(m => ({
+        name: m.name,
+        teacher: getTeacherName(m.id)
+    })), [modules, teachers]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <Grow in={true} timeout={500}>
                 <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
-                    Welcome back, Student
+                    Welcome back, {displayName}
                 </Typography>
             </Grow>
 
@@ -54,16 +77,14 @@ export default function StudentDashboard() {
                 {/* (A) Next Exam */}
                 <Grid item xs={12} md={6} lg={4}>
                     <Grow in={true} timeout={800}>
-                        <Card sx={{
-                            height: '100%',
-                            position: 'relative',
-                            overflow: 'visible',
-                            borderRadius: '24px',
-                            background: theme.palette.mode === 'light' ? GLASSMORPHISM.card.light : GLASSMORPHISM.card.dark,
-                            backdropFilter: GLASSMORPHISM.card.blur,
-                            border: `1px solid ${theme.palette.mode === 'light' ? GLASSMORPHISM.card.border.light : GLASSMORPHISM.card.border.dark}`,
-                            ...cardHoverStyle
-                        }}>
+                        <GlassmorphicCard
+                            hoverEffect="lift"
+                            sx={{
+                                height: '100%',
+                                position: 'relative',
+                                overflow: 'visible',
+                            }}
+                        >
                             <Box sx={{
                                 position: 'absolute',
                                 top: -10,
@@ -84,25 +105,25 @@ export default function StudentDashboard() {
                                     Upcoming Exam
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 700, mt: 1, mb: 2 }}>
-                                    {nextExam.module}
+                                    {nextExam?.module || 'No upcoming exams'}
                                 </Typography>
 
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <EventIcon fontSize="small" sx={{ color: COLORS.primaryMain }} />
-                                        <Typography variant="body2">{nextExam.date}</Typography>
+                                        <Typography variant="body2">{nextExam?.date || '-'}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <AccessTimeIcon fontSize="small" sx={{ color: COLORS.primaryMain }} />
-                                        <Typography variant="body2">{nextExam.time}</Typography>
+                                        <Typography variant="body2">{nextExam?.time || '-'}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <LocationOnIcon fontSize="small" sx={{ color: COLORS.primaryMain }} />
-                                        <Typography variant="body2">{nextExam.room}</Typography>
+                                        <Typography variant="body2">{nextExam?.room || '-'}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <PersonIcon fontSize="small" sx={{ color: COLORS.primaryMain }} />
-                                        <Typography variant="body2">{nextExam.teacher}</Typography>
+                                        <Typography variant="body2">{nextExam?.teacher || '-'}</Typography>
                                     </Box>
                                 </Box>
 
@@ -116,21 +137,14 @@ export default function StudentDashboard() {
                                     View Full Schedule
                                 </Button>
                             </CardContent>
-                        </Card>
+                        </GlassmorphicCard>
                     </Grow>
                 </Grid>
 
                 {/* (B) Latest Notifications */}
                 <Grid item xs={12} md={6} lg={4}>
                     <Grow in={true} timeout={1200}>
-                        <Card sx={{
-                            height: '100%',
-                            borderRadius: '24px',
-                            background: theme.palette.mode === 'light' ? GLASSMORPHISM.card.light : GLASSMORPHISM.card.dark,
-                            backdropFilter: GLASSMORPHISM.card.blur,
-                            border: `1px solid ${theme.palette.mode === 'light' ? GLASSMORPHISM.card.border.light : GLASSMORPHISM.card.border.dark}`,
-                            ...cardHoverStyle
-                        }}>
+                        <GlassmorphicCard hoverEffect="lift" sx={{ height: '100%' }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
                                     <NotificationsActiveIcon sx={{ color: COLORS.warningMain }} />
@@ -148,7 +162,7 @@ export default function StudentDashboard() {
                                                             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                                                                 {notif.title}
                                                             </Typography>
-                                                            {index === 0 && <Chip label="New" size="small" color="error" sx={{ height: 20, fontSize: '0.65rem' }} />}
+                                                            {!notif.read && <Chip label="New" size="small" color="error" sx={{ height: 20, fontSize: '0.65rem' }} />}
                                                         </Box>
                                                     }
                                                     secondary={
@@ -157,7 +171,7 @@ export default function StudentDashboard() {
                                                                 {notif.message}
                                                             </Typography>
                                                             <Typography variant="caption" color="text.disabled">
-                                                                {notif.date}
+                                                                {new Date(notif.date).toLocaleDateString()}
                                                             </Typography>
                                                         </>
                                                     }
@@ -176,21 +190,14 @@ export default function StudentDashboard() {
                                     View All
                                 </Button>
                             </CardContent>
-                        </Card>
+                        </GlassmorphicCard>
                     </Grow>
                 </Grid>
 
                 {/* (C) Semester Modules */}
                 <Grid item xs={12} md={12} lg={4}>
                     <Grow in={true} timeout={1600}>
-                        <Card sx={{
-                            height: '100%',
-                            borderRadius: '24px',
-                            background: theme.palette.mode === 'light' ? GLASSMORPHISM.card.light : GLASSMORPHISM.card.dark,
-                            backdropFilter: GLASSMORPHISM.card.blur,
-                            border: `1px solid ${theme.palette.mode === 'light' ? GLASSMORPHISM.card.border.light : GLASSMORPHISM.card.border.dark}`,
-                            ...cardHoverStyle
-                        }}>
+                        <GlassmorphicCard hoverEffect="lift" sx={{ height: '100%' }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
                                     <ClassIcon color="info" />
@@ -199,7 +206,7 @@ export default function StudentDashboard() {
                                     </Typography>
                                 </Box>
                                 <List>
-                                    {modules.map((mod) => (
+                                    {moduleList.map((mod) => (
                                         <ListItem key={mod.name} disablePadding sx={{ py: 1 }}>
                                             <Grid container alignItems="center">
                                                 <Grid item xs={8}>
@@ -213,7 +220,7 @@ export default function StudentDashboard() {
                                     ))}
                                 </List>
                             </CardContent>
-                        </Card>
+                        </GlassmorphicCard>
                     </Grow>
                 </Grid>
             </Grid>

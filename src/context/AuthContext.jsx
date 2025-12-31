@@ -22,17 +22,19 @@ export const AuthProvider = ({ children }) => {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (email === 'admin@admin.com') {
-                    const userData = { name: 'Admin User', role: 'admin' };
+                    const userData = { id: 1, name: 'Admin User', role: 'admin', email };
                     setUser(userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     resolve(userData);
                 } else if (email === 'teacher@teacher.com') {
-                    const userData = { name: 'Teacher User', role: 'teacher' };
+                    // ID 1 matches the first teacher in initialTeachers mock data
+                    const userData = { id: 1, name: 'Teacher User', role: 'teacher', email };
                     setUser(userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     resolve(userData);
                 } else if (email === 'student@student.com') {
-                    const userData = { name: 'Student User', role: 'student' };
+                    // ID 1 matches the first student in initialStudents mock data
+                    const userData = { id: 1, name: 'Student User', role: 'student', email };
                     setUser(userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     resolve(userData);

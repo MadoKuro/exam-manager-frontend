@@ -16,6 +16,7 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import { BaseLayout, AppBarControls, PageNavbar } from '../components/layout';
+import { useExamRequests } from '../context/ExamRequestContext';
 import { ANIMATIONS, COLORS } from '../theme/themeConstants';
 
 /**
@@ -88,16 +89,20 @@ function getActiveDomain(pathname) {
 export default function AdminLayout() {
     const theme = useTheme();
     const location = useLocation();
+    const { requests } = useExamRequests();
 
     const activeDomain = getActiveDomain(location.pathname);
     const pageNavItems = navigationConfig[activeDomain]?.items || [];
 
-    // Admin AppBar controls with notifications
+    // Dynamic pending request count
+    const pendingCount = requests.filter(r => r.status === 'Pending').length;
+
+    // Admin AppBar controls with dynamic notification count
     const adminAppBarControls = (
         <AppBarControls
             user={{ name: 'Admin' }}
             notificationPath="/admin/requests"
-            notificationCount={3}
+            notificationCount={pendingCount}
             defaultInitial="A"
         />
     );

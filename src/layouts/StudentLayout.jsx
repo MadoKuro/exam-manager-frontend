@@ -5,10 +5,12 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '../context/AuthContext';
+import { useUserNotifications } from '../context/UserNotificationsContext';
 import { BaseLayout, AppBarControls } from '../components/layout';
 
 export default function StudentLayout() {
     const { user } = useAuth();
+    const { getUnreadCount } = useUserNotifications();
 
     const menuItems = [
         { text: 'Dashboard', path: '/student/dashboard', icon: <DashboardIcon /> },
@@ -27,7 +29,7 @@ export default function StudentLayout() {
                 <AppBarControls
                     user={user}
                     notificationPath="/student/notifications"
-                    notificationCount={3}
+                    notificationCount={getUnreadCount('student', user?.id)}
                     defaultInitial="S"
                 />
             }

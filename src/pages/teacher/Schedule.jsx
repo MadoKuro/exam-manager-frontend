@@ -4,14 +4,18 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RoomIcon from '@mui/icons-material/Room';
 import { useExamRequests } from '../../context/ExamRequestContext';
+import { useAuth } from '../../context/AuthContext';
 import { GLASSMORPHISM, ANIMATIONS, COLORS } from '../../theme/themeConstants';
 
 export default function TeacherSchedule() {
     const { requests } = useExamRequests();
+    const { user } = useAuth();
     const theme = useTheme();
 
-    // Filter only Approved exams
-    const schedule = requests.filter(req => req.status === 'Approved');
+    // Filter only Approved exams for this teacher
+    const schedule = requests.filter(
+        req => req.status === 'Approved' && req.teacherId === user?.id
+    );
 
     // Sort by date/time
     schedule.sort((a, b) => {

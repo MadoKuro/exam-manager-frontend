@@ -3,18 +3,17 @@ import { useTheme } from '@mui/material/styles';
 import ClassIcon from '@mui/icons-material/Class';
 import PersonIcon from '@mui/icons-material/Person';
 import { GLASSMORPHISM, COLORS } from '../../theme/themeConstants';
+import { useAdminData } from '../../context/AdminDataContext';
 
 export default function StudentModules() {
     const theme = useTheme();
+    const { modules, teachers } = useAdminData();
 
-    const modules = [
-        { id: 1, name: 'Algorithmics 2', code: 'CS301', teacher: 'Mr. X', credits: 4, type: 'Core' },
-        { id: 2, name: 'Web Development', code: 'CS302', teacher: 'Mrs. Y', credits: 3, type: 'Core' },
-        { id: 3, name: 'Database Systems', code: 'CS303', teacher: 'Mr. Z', credits: 3, type: 'Core' },
-        { id: 4, name: 'Mathematics for CS', code: 'MATH202', teacher: 'Mrs. A', credits: 2, type: 'Foundation' },
-        { id: 5, name: 'Technical English', code: 'LANG101', teacher: 'Mr. B', credits: 1, type: 'Elective' },
-        { id: 6, name: 'Operating Systems', code: 'CS304', teacher: 'Mr. C', credits: 4, type: 'Core' },
-    ];
+    // Helper to get teacher name by ID
+    const getTeacherName = (teacherId) => {
+        const teacher = teachers.find(t => t.id === teacherId);
+        return teacher?.name || 'TBD';
+    };
 
     return (
         <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
@@ -66,7 +65,7 @@ export default function StudentModules() {
                                     <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600 }}>
                                         {module.code}
                                     </Typography>
-                                    <Chip label={module.type} size="small" variant="outlined" color="primary" sx={{ height: 20, fontSize: '0.65rem' }} />
+                                    <Chip label={module.type || 'Module'} size="small" variant="outlined" color="primary" sx={{ height: 20, fontSize: '0.65rem' }} />
                                 </Box>
 
                                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, minHeight: 64 }}>
@@ -82,7 +81,7 @@ export default function StudentModules() {
                                             Responsible Teacher
                                         </Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                            {module.teacher}
+                                            {getTeacherName(module.teacherId)}
                                         </Typography>
                                     </Box>
                                 </Box>

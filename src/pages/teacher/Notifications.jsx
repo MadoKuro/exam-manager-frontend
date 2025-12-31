@@ -1,51 +1,46 @@
 import { Box, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, Paper, Button, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import RoomIcon from '@mui/icons-material/Room';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useAuth } from '../../context/AuthContext';
 import { useUserNotifications, NOTIFICATION_TYPES } from '../../context/UserNotificationsContext';
 import { COLORS } from '../../theme/themeConstants';
 
-export default function StudentNotifications() {
+export default function TeacherNotifications() {
     const theme = useTheme();
     const { user } = useAuth();
     const { getNotificationsForUser, markAsRead, markAllAsRead } = useUserNotifications();
 
-    // Get notifications for this student
-    const notifications = getNotificationsForUser('student', user?.id);
+    // Get notifications for this teacher
+    const notifications = getNotificationsForUser('teacher', user?.id);
 
     const handleMarkAsRead = (id) => markAsRead(id);
-    const handleMarkAllRead = () => markAllAsRead('student');
+    const handleMarkAllRead = () => markAllAsRead('teacher');
 
     const getIcon = (type) => {
         switch (type) {
-            case NOTIFICATION_TYPES.ROOM_CHANGE:
-                return <RoomIcon />;
-            case NOTIFICATION_TYPES.NEW_EXAM:
-                return <EventNoteIcon />;
-            case NOTIFICATION_TYPES.SCHEDULE_UPDATE:
-                return <EventBusyIcon />;
+            case NOTIFICATION_TYPES.REQUEST_APPROVED:
+                return <CheckCircleIcon />;
+            case NOTIFICATION_TYPES.REQUEST_REFUSED:
+                return <CancelIcon />;
             case NOTIFICATION_TYPES.ANNOUNCEMENT:
                 return <NotificationsActiveIcon />;
             default:
-                return <NotificationsActiveIcon />;
+                return <EventNoteIcon />;
         }
     };
 
     const getColor = (type) => {
         switch (type) {
-            case NOTIFICATION_TYPES.ROOM_CHANGE:
+            case NOTIFICATION_TYPES.REQUEST_APPROVED:
+                return 'success.main';
+            case NOTIFICATION_TYPES.REQUEST_REFUSED:
                 return 'error.main';
-            case NOTIFICATION_TYPES.NEW_EXAM:
-                return 'info.main';
-            case NOTIFICATION_TYPES.SCHEDULE_UPDATE:
-                return 'warning.main';
             case NOTIFICATION_TYPES.ANNOUNCEMENT:
-                return 'text.secondary';
+                return 'info.main';
             default:
                 return 'primary.main';
         }
@@ -53,14 +48,12 @@ export default function StudentNotifications() {
 
     const getBgColor = (type) => {
         switch (type) {
-            case NOTIFICATION_TYPES.ROOM_CHANGE:
+            case NOTIFICATION_TYPES.REQUEST_APPROVED:
+                return 'success.light';
+            case NOTIFICATION_TYPES.REQUEST_REFUSED:
                 return 'error.light';
-            case NOTIFICATION_TYPES.NEW_EXAM:
-                return 'info.light';
-            case NOTIFICATION_TYPES.SCHEDULE_UPDATE:
-                return 'warning.light';
             case NOTIFICATION_TYPES.ANNOUNCEMENT:
-                return 'grey.200';
+                return 'info.light';
             default:
                 return 'primary.light';
         }
@@ -82,9 +75,14 @@ export default function StudentNotifications() {
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    Notifications
-                </Typography>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        Notifications
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Stay updated on your exam request statuses and announcements.
+                    </Typography>
+                </Box>
                 <Button
                     startIcon={<CheckCircleOutlineIcon />}
                     onClick={handleMarkAllRead}
@@ -161,7 +159,7 @@ export default function StudentNotifications() {
                     <NotificationsActiveIcon sx={{ fontSize: 60, color: theme.palette.action.disabled, mb: 2 }} />
                     <Typography variant="h6" color="text.secondary">No notifications yet</Typography>
                     <Typography variant="body2" color="text.secondary">
-                        You'll be notified about exam schedule updates and announcements here.
+                        You'll see notifications here when your exam requests are approved or refused.
                     </Typography>
                 </Paper>
             )}

@@ -5,11 +5,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useExamRequests } from '../../context/ExamRequestContext';
 import { useNotification } from '../../context/NotificationContext';
+import { useUserNotifications, NOTIFICATION_TYPES } from '../../context/UserNotificationsContext';
 import { GLASSMORPHISM, COLORS } from '../../theme/themeConstants';
 
 export default function AdminRequests() {
     const { requests, updateRequestStatus } = useExamRequests();
     const { notify } = useNotification();
+    const { addNotification } = useUserNotifications();
     const theme = useTheme();
 
     // Dialog State
@@ -20,8 +22,18 @@ export default function AdminRequests() {
     const pendingRequests = requests.filter(req => req.status === 'Pending');
 
     const handleApprove = (id) => {
+        const request = requests.find(r => r.id === id);
         updateRequestStatus(id, 'Approved');
         notify('Exam request Approved!', 'success');
+
+        // Create notification for the teacher
+        addNotification({
+            type: NOTIFICATION_TYPES.REQUEST_APPROVED,
+            title: 'Request Approved',
+            message: `Your exam request for "${request?.module}" has been approved and scheduled for ${request?.date} at ${request?.time}.`,
+            targetRoles: ['teacher'],
+            targetUserId: request?.teacherId
+        });
     };
 
     const handleOpenRefuse = (id) => {
@@ -35,8 +47,19 @@ export default function AdminRequests() {
             notify('Please provide a reason for refusal.', 'error');
             return;
         }
+        const request = requests.find(r => r.id === selectedId);
         updateRequestStatus(selectedId, 'Refused', refusalReason);
         notify('Exam request Refused.', 'info');
+
+        // Create notification for the teacher
+        addNotification({
+            type: NOTIFICATION_TYPES.REQUEST_REFUSED,
+            title: 'Request Refused',
+            message: `Your exam request for "${request?.module}" was refused. Reason: ${refusalReason}`,
+            targetRoles: ['teacher'],
+            targetUserId: request?.teacherId
+        });
+
         setOpenRefuse(false);
     };
 

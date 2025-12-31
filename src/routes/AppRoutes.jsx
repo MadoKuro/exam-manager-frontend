@@ -37,6 +37,7 @@ import TeacherDashboard from '../pages/teacher/Dashboard';
 import TeacherProfile from '../pages/teacher/Profile';
 import TeacherSchedule from '../pages/teacher/Schedule';
 import TeacherRequests from '../pages/teacher/Requests';
+import TeacherNotifications from '../pages/teacher/Notifications';
 
 // Admin Additional Pages
 import AdminRequests from '../pages/admin/Requests';
@@ -100,6 +101,7 @@ export default function AppRoutes() {
                 <Route path="/teacher/profile" element={<TeacherProfile />} />
                 <Route path="/teacher/schedule" element={<TeacherSchedule />} />
                 <Route path="/teacher/requests" element={<TeacherRequests />} />
+                <Route path="/teacher/notifications" element={<TeacherNotifications />} />
             </Route>
 
             {/* Student Routes */}

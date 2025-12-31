@@ -4,11 +4,13 @@ import { useTheme } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import { useExamRequests } from '../../context/ExamRequestContext';
 import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import { GLASSMORPHISM, COLORS } from '../../theme/themeConstants';
 
 export default function TeacherRequests() {
     const { requests, addRequest } = useExamRequests();
     const { notify } = useNotification();
+    const { user } = useAuth();
     const theme = useTheme();
 
     const [formData, setFormData] = useState({
@@ -27,10 +29,11 @@ export default function TeacherRequests() {
             return;
         }
 
+        // Use actual teacher ID and name from auth context
         addRequest({
             ...formData,
-            teacherId: 1,
-            teacherName: 'Current Teacher'
+            teacherId: user?.id,
+            teacherName: user?.name || 'Teacher'
         });
 
         notify('Exam request submitted successfully!', 'success');
@@ -52,8 +55,8 @@ export default function TeacherRequests() {
         });
     };
 
-    // Get teacher's requests only (in real app, filter by teacher ID)
-    const myRequests = requests.filter(req => req.teacherId === 1);
+    // Get teacher's requests only using actual user ID
+    const myRequests = requests.filter(req => req.teacherId === user?.id);
 
     const getStatusColor = (status) => {
         switch (status) {

@@ -4,19 +4,28 @@ import SchoolIcon from '@mui/icons-material/School';
 import BadgeIcon from '@mui/icons-material/Badge';
 import GroupsIcon from '@mui/icons-material/Groups';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminData } from '../../context/AdminDataContext';
 import { COLORS } from '../../theme/themeConstants';
 
 export default function StudentProfile() {
     const { user } = useAuth();
+    const { students, levels, groups } = useAdminData();
     const theme = useTheme();
 
+    // Find current student from context using user ID
+    const currentStudent = students.find(s => s.id === user?.id);
+
+    // Lookup level and group names
+    const levelName = levels.find(l => l.id === currentStudent?.levelId)?.name || 'N/A';
+    const groupName = groups.find(g => g.id === currentStudent?.groupId)?.name || 'N/A';
+
     const studentInfo = {
-        name: user?.name || 'John Doe',
-        studentId: '20250001',
-        group: 'Group A2',
-        level: 'L3 Computer Science',
-        specialty: 'Software Engineering',
-        email: user?.email || 'john.doe@univ.edu',
+        name: currentStudent?.name || user?.name || 'Student',
+        studentId: String(currentStudent?.id || user?.id || '').padStart(8, '0'),
+        group: groupName,
+        level: levelName,
+        specialty: currentStudent?.specialization || 'N/A',
+        email: currentStudent?.email || user?.email || 'student@univ.edu',
     };
 
     const InfoItem = ({ icon, label, value }) => (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Box, Typography, Grid, Card, CardContent, Button, TextField, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, ToggleButton, ToggleButtonGroup, InputAdornment } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableViewIcon from '@mui/icons-material/TableView';
 import { GLASSMORPHISM, COLORS } from '../../theme/themeConstants';
+import { useAdminData } from '../../context/AdminDataContext';
 
 export default function StudentSchedule() {
     const theme = useTheme();
@@ -14,14 +15,39 @@ export default function StudentSchedule() {
     const [filterModule, setFilterModule] = useState('');
     const [filterType, setFilterType] = useState('all');
 
-    // Mock Data
-    const exams = [
-        { id: 1, module: 'Algorithmics 2', date: '2026-01-12', time: '10:00 - 12:00', room: 'Room 23', teacher: 'Mr. X', type: 'Final Exam' },
-        { id: 2, module: 'Web Development', date: '2026-01-14', time: '14:00 - 16:00', room: 'Lab 04', teacher: 'Mrs. Y', type: 'Lab Test' },
-        { id: 3, module: 'Databases', date: '2026-01-16', time: '08:30 - 10:30', room: 'Amphi A', teacher: 'Mr. Z', type: 'Final Exam' },
-        { id: 4, module: 'Mathematics', date: '2026-01-19', time: '10:00 - 12:00', room: 'Room 12', teacher: 'Mrs. A', type: 'Regular' },
-        { id: 5, module: 'English', date: '2026-01-21', time: '13:00 - 14:00', room: 'Room 05', teacher: 'Mr. B', type: 'Regular' },
-    ];
+    // Get data from shared context
+    const { exams, modules, teachers, rooms } = useAdminData();
+
+    // Helper functions to lookup related data
+    const getModuleName = (moduleId) => modules.find(m => m.id === moduleId)?.name || 'Unknown Module';
+    const getTeacherName = (moduleId) => {
+        const module = modules.find(m => m.id === moduleId);
+        return teachers.find(t => t.id === module?.teacherId)?.name || 'TBD';
+    };
+    const getRoomNames = (roomIds) => {
+        if (!roomIds?.length) return 'TBD';
+        return roomIds.map(id => rooms.find(r => r.id === id)?.name || 'Room').join(', ');
+    };
+
+    // Transform exams data for display
+    const displayExams = useMemo(() => exams.map(exam => ({
+        id: exam.id,
+        module: getModuleName(exam.moduleId),
+        date: exam.date,
+        time: `${exam.startTime} - ${calculateEndTime(exam.startTime, exam.duration)}`,
+        room: getRoomNames(exam.roomIds),
+        teacher: getTeacherName(exam.moduleId),
+        type: exam.type || 'Final Exam'
+    })), [exams, modules, teachers, rooms]);
+
+    // Helper to calculate end time
+    function calculateEndTime(startTime, durationMinutes) {
+        const [hours, mins] = startTime.split(':').map(Number);
+        const totalMins = hours * 60 + mins + durationMinutes;
+        const endHours = Math.floor(totalMins / 60) % 24;
+        const endMins = totalMins % 60;
+        return `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+    }
 
     const handleViewChange = (event, newView) => {
         if (newView !== null) {
@@ -29,7 +55,7 @@ export default function StudentSchedule() {
         }
     };
 
-    const filteredExams = exams.filter(exam => {
+    const filteredExams = displayExams.filter(exam => {
         const matchesModule = exam.module.toLowerCase().includes(filterModule.toLowerCase());
         const matchesType = filterType === 'all' || exam.type === filterType;
         return matchesModule && matchesType;
@@ -37,9 +63,10 @@ export default function StudentSchedule() {
 
     const getTypeColor = (type) => {
         switch (type) {
-            case 'Final Exam': return 'error';
-            case 'Lab Test': return 'info';
-            case 'Regular': return 'success';
+            case 'Written': return 'error';
+            case 'Oral': return 'info';
+            case 'Practical': return 'success';
+            case 'Online': return 'warning';
             default: return 'default';
         }
     };
@@ -106,9 +133,10 @@ export default function StudentSchedule() {
                                 label="Exam Type"
                             >
                                 <MenuItem value="all">All Types</MenuItem>
-                                <MenuItem value="Final Exam">Final Exam</MenuItem>
-                                <MenuItem value="Lab Test">Lab Test</MenuItem>
-                                <MenuItem value="Regular">Regular</MenuItem>
+                                <MenuItem value="Written">Written</MenuItem>
+                                <MenuItem value="Oral">Oral</MenuItem>
+                                <MenuItem value="Practical">Practical</MenuItem>
+                                <MenuItem value="Online">Online</MenuItem>
                             </TextField>
                         </Grid>
                         <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
