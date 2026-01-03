@@ -12,13 +12,13 @@ export default function ModuleForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const theme = useTheme();
-    const { modulesCrud, semesters, teachers } = useAdminData();
+    const { modulesCrud, levels, teachers } = useAdminData();
     const { notify } = useNotification();
 
     const [formData, setFormData] = useState({
         name: '',
         code: '',
-        semesterId: '',
+        levelId: '',
         teacherId: ''
     });
     const isEditing = Boolean(id);
@@ -30,8 +30,8 @@ export default function ModuleForm() {
                 setFormData({
                     name: module.name,
                     code: module.code,
-                    semesterId: module.semesterId,
-                    teacherId: module.teacherId,
+                    levelId: module.levelId || module.level_id || '',
+                    teacherId: module.teacherId || module.teacher_id || '',
                 });
             }
         }
@@ -40,7 +40,7 @@ export default function ModuleForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.code || !formData.semesterId || !formData.teacherId) {
+        if (!formData.name || !formData.code || !formData.levelId || !formData.teacherId) {
             notify('Please fill all fields', 'error');
             return;
         }
@@ -101,15 +101,15 @@ export default function ModuleForm() {
                             />
                             <TextField
                                 select
-                                label="Semester"
+                                label="Level"
                                 fullWidth
-                                value={formData.semesterId}
-                                onChange={(e) => setFormData({ ...formData, semesterId: Number(e.target.value) })}
+                                value={formData.levelId}
+                                onChange={(e) => setFormData({ ...formData, levelId: Number(e.target.value) })}
                                 required
                             >
-                                {semesters.map((semester) => (
-                                    <MenuItem key={semester.id} value={semester.id}>
-                                        {semester.name}
+                                {levels.map((level) => (
+                                    <MenuItem key={level.id} value={level.id}>
+                                        {level.name} ({level.code})
                                     </MenuItem>
                                 ))}
                             </TextField>

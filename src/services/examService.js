@@ -1,8 +1,24 @@
 import api from './api';
 
 /**
+ * Transform frontend exam data to backend format (camelCase → snake_case)
+ * Note: type is passed through directly since backend accepts frontend values
+ */
+const transformExamForBackend = (data) => ({
+    module_id: data.moduleId,
+    date: data.date,
+    start_time: data.startTime,
+    duration: data.duration,
+    type: data.type, // Backend accepts: Written, Oral, Practical, TP, final, midterm, quiz, practical
+    notes: data.notes,
+    room_ids: data.roomIds || [],
+    surveillant_ids: data.surveillantIds || [],
+    group_ids: data.groupIds || [],
+});
+
+/**
  * Exam API service
- * Provides CRUD operations for exams
+ * Provides CRUD operations for exams with data transformation
  */
 export const examService = {
     /**
@@ -21,18 +37,24 @@ export const examService = {
 
     /**
      * Create a new exam
-     * @param {Object} data - Exam data
+     * @param {Object} data - Exam data (uses frontend camelCase format)
      * @returns {Promise} API response with created exam
      */
-    create: (data) => api.post('/exams', data),
+    create: (data) => {
+        const payload = transformExamForBackend(data);
+        return api.post('/exams', payload);
+    },
 
     /**
      * Update an existing exam
      * @param {number} id - Exam ID
-     * @param {Object} data - Updated exam data
+     * @param {Object} data - Updated exam data (uses frontend camelCase format)
      * @returns {Promise} API response with updated exam
      */
-    update: (id, data) => api.put(`/exams/${id}`, data),
+    update: (id, data) => {
+        const payload = transformExamForBackend(data);
+        return api.put(`/exams/${id}`, payload);
+    },
 
     /**
      * Delete an exam

@@ -1,51 +1,58 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // { name, role: 'admin' | 'teacher' | 'student' }
+    const [user, setUser] = useState(null); // { id, name, role, email, teacher_id?, student_id? }
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Simulate checking auth state (e.g., from localStorage)
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        // Check if user has active session
+        const validateSession = async () => {
+            // First check localStorage for cached user
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    // Validate session with backend
+                    const response = await authService.getCurrentUser();
+                    const userData = response.data.data;
+                    setUser(userData);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                } catch (error) {
+                    // Session expired or invalid, clear stored user
+                    localStorage.removeItem('user');
+                    setUser(null);
+                }
+            }
+            setLoading(false);
+        };
+        validateSession();
     }, []);
 
-    const login = (email, password) => {
-        // Mock login logic - replace with API call
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (email === 'admin@admin.com') {
-                    const userData = { id: 1, name: 'Admin User', role: 'admin', email };
-                    setUser(userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    resolve(userData);
-                } else if (email === 'teacher@teacher.com') {
-                    // ID 1 matches the first teacher in initialTeachers mock data
-                    const userData = { id: 1, name: 'Teacher User', role: 'teacher', email };
-                    setUser(userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    resolve(userData);
-                } else if (email === 'student@student.com') {
-                    // ID 1 matches the first student in initialStudents mock data
-                    const userData = { id: 1, name: 'Student User', role: 'student', email };
-                    setUser(userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    resolve(userData);
-                } else {
-                    reject(new Error('Invalid credentials'));
-                }
-            }, 1000);
-        });
+    const login = async (email, password) => {
+        try {
+            const response = await authService.login(email, password);
+            const userData = response.data.data;
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            return userData;
+        } catch (error) {
+            // Extract error message from response
+            const message = error.response?.data?.message || 'Invalid credentials';
+            throw new Error(message);
+        }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await authService.logout();
+        } catch (error) {
+            // Ignore logout errors, proceed with client-side cleanup
+            console.error('Logout error:', error);
+        }
         setUser(null);
         localStorage.removeItem('user');
         navigate('/login');

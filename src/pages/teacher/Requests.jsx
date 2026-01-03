@@ -1,25 +1,34 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Box, Typography, TextField, Button, Paper, Grid, Card, CardContent, Chip, Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import { useExamRequests } from '../../context/ExamRequestContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminData } from '../../context/AdminDataContext';
+import AutocompleteSelect from '../../components/AutocompleteSelect';
 import { GLASSMORPHISM, COLORS } from '../../theme/themeConstants';
 
 export default function TeacherRequests() {
     const { requests, addRequest } = useExamRequests();
     const { notify } = useNotification();
     const { user } = useAuth();
+    const { modules, loading: dataLoading } = useAdminData();
     const theme = useTheme();
 
     const [formData, setFormData] = useState({
-        module: '',
+        module: null,
         date: '',
         time: '',
         duration: '',
         room: ''
     });
+
+    // Filter modules to only show those assigned to this teacher
+    const teacherModules = useMemo(() => {
+        if (!user?.teacher_id) return modules; // Show all if no teacher_id
+        return modules.filter(m => m.teacher_id === user.teacher_id || m.teacherId === user.teacher_id);
+    }, [modules, user?.teacher_id]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,8 +39,14 @@ export default function TeacherRequests() {
         }
 
         // Use actual teacher ID and name from auth context
+        // Send module name for display, module_id for backend
         addRequest({
-            ...formData,
+            module: `${formData.module.code} - ${formData.module.name}`,
+            moduleId: formData.module.id,
+            date: formData.date,
+            time: formData.time,
+            duration: formData.duration,
+            room: formData.room,
             teacherId: user?.id,
             teacherName: user?.name || 'Teacher'
         });
@@ -40,7 +55,7 @@ export default function TeacherRequests() {
 
         // Reset form
         setFormData({
-            module: '',
+            module: null,
             date: '',
             time: '',
             duration: '',
@@ -94,13 +109,21 @@ export default function TeacherRequests() {
                         </Typography>
                         <form onSubmit={handleSubmit}>
                             <Stack spacing={3}>
-                                <TextField
-                                    label="Module"
-                                    name="module"
+                                <AutocompleteSelect
+                                    options={teacherModules}
                                     value={formData.module}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    placeholder="e.g., CS101 - Introduction to CS"
+                                    onChange={(newValue) => setFormData({ ...formData, module: newValue })}
+                                    label="Module"
+                                    required
+                                    loading={dataLoading}
+                                    getOptionLabel={(option) => option ? `${option.code} - ${option.name}` : ''}
+                                    renderOptionContent={(option) => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Chip label={option.code} size="small" variant="outlined" />
+                                            {option.name}
+                                        </Box>
+                                    )}
+                                    placeholder="Search your modules..."
                                 />
                                 <TextField
                                     label="Date"
@@ -130,12 +153,13 @@ export default function TeacherRequests() {
                                     placeholder="e.g., 120"
                                 />
                                 <TextField
-                                    label="Room"
+                                    label="Preferred Room"
                                     name="room"
                                     value={formData.room}
                                     onChange={handleChange}
                                     fullWidth
-                                    placeholder="e.g., A101"
+                                    placeholder="e.g., Room 101, Amphitheater A"
+                                    helperText="Enter your preferred room/location for the exam"
                                 />
                                 <Button
                                     type="submit"
@@ -190,10 +214,12 @@ export default function TeacherRequests() {
                                                 <Typography variant="caption" color="text.secondary">Duration</Typography>
                                                 <Typography variant="body2" fontWeight="500">{req.duration} min</Typography>
                                             </Grid>
-                                            <Grid item xs={6}>
-                                                <Typography variant="caption" color="text.secondary">Room</Typography>
-                                                <Typography variant="body2" fontWeight="500">{req.room}</Typography>
-                                            </Grid>
+                                            {req.room && (
+                                                <Grid item xs={6}>
+                                                    <Typography variant="caption" color="text.secondary">Room</Typography>
+                                                    <Typography variant="body2" fontWeight="500">{req.room}</Typography>
+                                                </Grid>
+                                            )}
                                         </Grid>
                                         {req.refusalReason && (
                                             <Box sx={{ mt: 2, p: 2, bgcolor: 'error.light', borderRadius: 2 }}>

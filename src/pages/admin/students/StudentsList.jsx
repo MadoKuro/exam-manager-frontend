@@ -14,20 +14,26 @@ export default function StudentsList() {
 
     const columns = [
         { key: 'name', label: 'Name', render: (row) => <strong>{row.name}</strong> },
+        { key: 'studentNumber', label: 'Student #', render: (row) => row.studentNumber || row.student_number || '-' },
         { key: 'email', label: 'Email' },
         {
             key: 'levelId',
             label: 'Level',
             render: (row) => {
-                const level = levels.find(l => l.id === row.levelId);
+                // Handle both levelId from service transform and direct group.level_id
+                const levelId = row.levelId || row.group?.level_id;
+                const level = levels.find(l => l.id === levelId);
                 return level ? <Chip label={level.code} size="small" variant="outlined" /> : '-';
             }
         },
-        { key: 'specialization', label: 'Specialization' },
+        { key: 'specialization', label: 'Specialization', render: (row) => row.specialization?.name || '-' },
         {
             key: 'groupId',
             label: 'Group',
-            render: (row) => groups.find(g => g.id === row.groupId)?.name || '-'
+            render: (row) => {
+                const groupId = row.groupId || row.group_id;
+                return groups.find(g => g.id === groupId)?.name || '-';
+            }
         },
     ];
 

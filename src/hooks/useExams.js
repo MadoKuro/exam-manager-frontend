@@ -1,6 +1,5 @@
-import { useCallback } from 'react';
-import { useEntityCrud } from './useEntityCrud';
-import { initialExams } from '../data/mockData';
+import { useState, useEffect, useCallback } from 'react';
+import { examService } from '../services';
 
 /**
  * Helper function to check if two time slots overlap
@@ -22,14 +21,72 @@ const doTimesOverlap = (date1, start1, duration1, date2, start2, duration2) => {
 };
 
 /**
- * Hook for managing exams data with conflict detection
- * Contains exam-specific business logic
+ * Hook for managing exams data with conflict detection and API integration
  * 
  * @param {Object} dependencies - External dependencies (teachers, modules, rooms)
  * @returns {Object} - Exams data, CRUD, and conflict detection functions
  */
 export function useExams({ teachers = [], modules = [], rooms = [] } = {}) {
-    const { items: exams, crud, setItems: setExams } = useEntityCrud(initialExams);
+    const [exams, setExams] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch exams on mount
+    useEffect(() => {
+        fetchExams();
+    }, []);
+
+    const fetchExams = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await examService.getAll();
+            setExams(response.data.data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch exams');
+            console.error('Error fetching exams:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const add = useCallback(async (examData) => {
+        try {
+            const response = await examService.create(examData);
+            const newExam = response.data.data;
+            setExams(prev => [...prev, newExam]);
+            return newExam;
+        } catch (err) {
+            console.error('Error creating exam:', err);
+            throw err;
+        }
+    }, []);
+
+    const update = useCallback(async (id, updates) => {
+        try {
+            const response = await examService.update(id, updates);
+            const updatedExam = response.data.data;
+            setExams(prev => prev.map(e => e.id === id ? updatedExam : e));
+            return updatedExam;
+        } catch (err) {
+            console.error('Error updating exam:', err);
+            throw err;
+        }
+    }, []);
+
+    const remove = useCallback(async (id) => {
+        try {
+            await examService.delete(id);
+            setExams(prev => prev.filter(e => e.id !== id));
+        } catch (err) {
+            console.error('Error deleting exam:', err);
+            throw err;
+        }
+    }, []);
+
+    const getById = useCallback((id) => {
+        return exams.find(e => e.id === id);
+    }, [exams]);
 
     // Check for room conflicts
     const checkRoomConflicts = useCallback((date, startTime, duration, roomIds, excludeExamId = null) => {
@@ -133,8 +190,16 @@ export function useExams({ teachers = [], modules = [], rooms = [] } = {}) {
 
     return {
         exams,
-        examsCrud: crud,
+        examsCrud: {
+            add,
+            update,
+            remove,
+            getById,
+        },
         setExams,
+        loading,
+        error,
+        refetch: fetchExams,
         // Conflict detection
         checkRoomConflicts,
         checkTeacherConflicts,

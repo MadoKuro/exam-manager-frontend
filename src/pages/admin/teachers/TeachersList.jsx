@@ -15,6 +15,8 @@ export default function TeachersList() {
     const columns = [
         { key: 'name', label: 'Name', render: (row) => <strong>{row.name}</strong> },
         { key: 'email', label: 'Email' },
+        { key: 'department', label: 'Department', render: (row) => row.department || '-' },
+        { key: 'office', label: 'Office', render: (row) => row.office || '-' },
     ];
 
     const handleAdd = () => {

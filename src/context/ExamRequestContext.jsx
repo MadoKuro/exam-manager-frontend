@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { examRequestService } from '../services';
+import { useAuth } from './AuthContext';
 
 const ExamRequestContext = createContext();
 
@@ -11,75 +13,74 @@ export const useExamRequests = () => {
 };
 
 export const ExamRequestProvider = ({ children }) => {
-    const [requests, setRequests] = useState([
-        {
-            id: 1,
-            module: 'CS101 - Intro to Computer Science',
-            date: '2025-12-15',
-            time: '09:00',
-            duration: 120,
-            room: 'A101',
-            status: 'Pending',
-            teacherId: 1,
-            teacherName: 'John Doe'
-        },
-        {
-            id: 2,
-            module: 'DB201 - Database Systems',
-            date: '2025-12-18',
-            time: '14:00',
-            duration: 90,
-            room: 'B205',
-            status: 'Approved',
-            teacherId: 1,
-            teacherName: 'John Doe'
-        },
-        {
-            id: 3,
-            module: 'ALG102 - Algorithms & Data Structures',
-            date: '2025-12-20',
-            time: '10:30',
-            duration: 150,
-            room: 'C103',
-            status: 'Pending',
-            teacherId: 2,
-            teacherName: 'Jane Smith'
-        },
-        {
-            id: 4,
-            module: 'WEB301 - Web Development',
-            date: '2025-12-22',
-            time: '13:00',
-            duration: 120,
-            room: 'A202',
-            status: 'Approved',
-            teacherId: 1,
-            teacherName: 'John Doe'
+    const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user } = useAuth();
+
+    // Fetch requests on mount and when user changes
+    useEffect(() => {
+        if (user) {
+            fetchRequests();
         }
-    ]);
+    }, [user]);
 
-    const addRequest = (newRequest) => {
-        const request = {
-            ...newRequest,
-            id: requests.length + 1,
-            status: 'Pending'
-        };
-        setRequests([...requests, request]);
-        return request;
+    const fetchRequests = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await examRequestService.getAll();
+            setRequests(response.data.data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch exam requests');
+            console.error('Error fetching exam requests:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const updateRequestStatus = (id, status, reason = null) => {
-        setRequests(requests.map(req =>
-            req.id === id
-                ? { ...req, status, refusalReason: reason }
-                : req
-        ));
-    };
+    const addRequest = useCallback(async (newRequest) => {
+        try {
+            // Map frontend fields to backend expected format
+            const requestData = {
+                module_name: newRequest.module,
+                date: newRequest.date,
+                time: newRequest.time,
+                duration: parseInt(newRequest.duration, 10),
+                room: newRequest.room,
+            };
+            const response = await examRequestService.create(requestData);
+            const createdRequest = response.data.data;
+            setRequests(prev => [createdRequest, ...prev]);
+            return createdRequest;
+        } catch (err) {
+            console.error('Error creating exam request:', err);
+            throw err;
+        }
+    }, []);
+
+    const updateRequestStatus = useCallback(async (id, status, reason = null) => {
+        try {
+            const response = await examRequestService.updateStatus(id, status, reason);
+            setRequests(prev => prev.map(req =>
+                req.id === id
+                    ? { ...req, status, refusalReason: reason }
+                    : req
+            ));
+            return response.data.data;
+        } catch (err) {
+            console.error('Error updating request status:', err);
+            throw err;
+        }
+    }, []);
 
     const value = {
         requests,
         addRequest,
-        updateRequestStatus
+        updateRequestStatus,
+        loading,
+        error,
+        refetch: fetchRequests,
     };
 
     return (

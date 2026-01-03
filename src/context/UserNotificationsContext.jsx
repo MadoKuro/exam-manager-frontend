@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { notificationService } from '../services';
+import { useAuth } from './AuthContext';
 
 const UserNotificationsContext = createContext();
 
@@ -21,85 +23,106 @@ export const NOTIFICATION_TYPES = {
 };
 
 export const UserNotificationsProvider = ({ children }) => {
-    const [notifications, setNotifications] = useState([
-        // Initial mock data for students
-        {
-            id: 1,
-            type: NOTIFICATION_TYPES.ROOM_CHANGE,
-            title: 'Room Change',
-            message: 'Algorithmics 2 exam moved to Room 23',
-            date: new Date().toISOString(),
-            read: false,
-            targetRoles: ['student']
-        },
-        {
-            id: 2,
-            type: NOTIFICATION_TYPES.NEW_EXAM,
-            title: 'New Exam Added',
-            message: 'Database Systems Final Exam schedule released',
-            date: new Date(Date.now() - 86400000).toISOString(),
-            read: false,
-            targetRoles: ['student']
-        },
-        {
-            id: 3,
-            type: NOTIFICATION_TYPES.SCHEDULE_UPDATE,
-            title: 'Schedule Update',
-            message: 'Mathematics mid-term time changed to 14:00',
-            date: new Date(Date.now() - 172800000).toISOString(),
-            read: true,
-            targetRoles: ['student']
-        },
-        {
-            id: 4,
-            type: NOTIFICATION_TYPES.ANNOUNCEMENT,
-            title: 'Announcement',
-            message: 'End of semester exam period begins January 12th',
-            date: new Date(Date.now() - 259200000).toISOString(),
-            read: true,
-            targetRoles: ['student', 'teacher']
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user } = useAuth();
+
+    // Fetch notifications when user changes
+    useEffect(() => {
+        if (user) {
+            fetchNotifications();
+        } else {
+            setNotifications([]);
+            setLoading(false);
         }
-    ]);
+    }, [user]);
 
-    const addNotification = useCallback((notification) => {
-        setNotifications(prev => [{
-            id: Date.now(),
-            date: new Date().toISOString(),
-            read: false,
-            ...notification
-        }, ...prev]);
+    const fetchNotifications = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await notificationService.getAll();
+            setNotifications(response.data.data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch notifications');
+            console.error('Error fetching notifications:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const addNotification = useCallback(async (notification) => {
+        // For admin-created notifications, call API
+        // For local/optimistic notifications, add to state directly
+        try {
+            if (notification.persist !== false) {
+                const response = await notificationService.create({
+                    type: notification.type,
+                    title: notification.title,
+                    message: notification.message,
+                    target_roles: notification.targetRoles,
+                    target_user_id: notification.targetUserId,
+                });
+                const created = response.data.data;
+                setNotifications(prev => [created, ...prev]);
+                return created;
+            } else {
+                // Local-only notification (not persisted)
+                const localNotification = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    read: false,
+                    ...notification
+                };
+                setNotifications(prev => [localNotification, ...prev]);
+                return localNotification;
+            }
+        } catch (err) {
+            console.error('Error creating notification:', err);
+            throw err;
+        }
     }, []);
 
-    const markAsRead = useCallback((id) => {
-        setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
-        );
+    const markAsRead = useCallback(async (id) => {
+        try {
+            await notificationService.markAsRead(id);
+            setNotifications(prev =>
+                prev.map(n => n.id === id ? { ...n, read: true } : n)
+            );
+        } catch (err) {
+            console.error('Error marking notification as read:', err);
+            throw err;
+        }
     }, []);
 
-    const markAllAsRead = useCallback((role) => {
-        setNotifications(prev =>
-            prev.map(n => n.targetRoles?.includes(role) ? { ...n, read: true } : n)
-        );
+    const markAllAsRead = useCallback(async () => {
+        try {
+            await notificationService.markAllAsRead();
+            setNotifications(prev =>
+                prev.map(n => ({ ...n, read: true }))
+            );
+        } catch (err) {
+            console.error('Error marking all notifications as read:', err);
+            throw err;
+        }
     }, []);
 
-    // Get notifications for a specific role, optionally filtered by userId
+    // Get notifications for a specific role (client-side filtering for compatibility)
     const getNotificationsForRole = useCallback((role, userId = null) => {
         return notifications.filter(n => {
             const roleMatch = n.targetRoles?.includes(role);
-            // If targetUserId is specified, also filter by user
             if (n.targetUserId && userId) {
                 return roleMatch && n.targetUserId === userId;
             }
-            // If no targetUserId on notification, show to all users with that role
             return roleMatch && !n.targetUserId;
         });
     }, [notifications]);
 
-    // Get notifications specifically for a user (by ID and role)
+    // Get notifications for a specific user (by ID and role)
     const getNotificationsForUser = useCallback((role, userId) => {
         return notifications.filter(n => {
             const roleMatch = n.targetRoles?.includes(role);
-            // Show if: no targetUserId (broadcast to role) OR targetUserId matches
             return roleMatch && (!n.targetUserId || n.targetUserId === userId);
         });
     }, [notifications]);
@@ -108,7 +131,6 @@ export const UserNotificationsProvider = ({ children }) => {
         return notifications.filter(n => {
             const roleMatch = n.targetRoles?.includes(role);
             const isUnread = !n.read;
-            // Show if: no targetUserId (broadcast to role) OR targetUserId matches
             const userMatch = !n.targetUserId || n.targetUserId === userId;
             return roleMatch && isUnread && userMatch;
         }).length;
@@ -123,6 +145,9 @@ export const UserNotificationsProvider = ({ children }) => {
             getNotificationsForRole,
             getNotificationsForUser,
             getUnreadCount,
+            loading,
+            error,
+            refetch: fetchNotifications,
             NOTIFICATION_TYPES
         }}>
             {children}
